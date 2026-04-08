@@ -2,24 +2,27 @@ function MovieCard({ title, year, rating, poster, onClick }) {
   return (
     <div
       onClick={onClick}
-      style={{
-        border: '1px solid #e0e0e0',
-        borderRadius: '12px',
-        width: '160px',
-        overflow: 'hidden',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        cursor: 'pointer',
-      }}
+      className="
+        movie-card
+        cursor-pointer
+        border rounded-xl overflow-hidden
+        transition-transform duration-300 ease-in-out
+        hover:scale-105 hover:-translate-y-1
+        bg-white
+      "
+      style={{ width: '160px' }}
     >
       <img
-        src={poster ? `https://image.tmdb.org/t/p/w300${poster}` : ''}
+        src={`https://image.tmdb.org/t/p/w200${poster}`}
         alt={title}
-        style={{ width: '100%', height: '220px', objectFit: 'cover' }}
+        style={{ width: '100%', height: '240px', objectFit: 'cover' }}
       />
-      <div style={{ padding: '12px' }}>
-        <h3 style={{ margin: '0 0 8px', fontSize: '14px' }}>{title}</h3>
-        <p style={{ margin: '0 0 4px', color: '#888', fontSize: '12px' }}>📅 {year}</p>
-        <p style={{ margin: 0, color: '#f5a623', fontSize: '12px' }}>⭐ {rating}</p>
+
+      <div style={{ padding: '10px' }}>
+        <h3 style={{ fontSize: '14px', fontWeight: 'bold' }}>{title}</h3>
+        <p style={{ fontSize: '12px', color: '#888' }}>
+          {year} ⭐ {rating}
+        </p>
       </div>
     </div>
   );

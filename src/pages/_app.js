@@ -5,39 +5,37 @@ export default function App({ Component, pageProps }) {
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    // TODO: localStorage에서 다크모드 설정 불러와서 setIsDark 처리
     setIsDark(localStorage.getItem('darkMode') === 'true');
   }, []);
 
   const toggleDark = () => {
-    // TODO: isDark 토글 후 localStorage에 저장
     localStorage.setItem('darkMode', !isDark);
     setIsDark(!isDark);
   };
 
   return (
-    <div className={isDark ? 'dark' : ''} 
-    style={{ 
-      minHeight: '100vh',
-      backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
-      color: isDark ? '#ffffff' : '#171717',
-    }}>
+    <div
+      className={`${isDark ? 'dark' : ''} min-h-screen`}
+    >
+      {/* 🌙 다크모드 버튼 */}
       <button
         onClick={toggleDark}
-        style={{
-          position: 'fixed',
-          top: '16px',
-          left: '16px',
-          padding: '8px 16px',
-          borderRadius: '24px',
-          border: 'none',
-          cursor: 'pointer',
-          zIndex: 1000,
-          fontSize: '18px',
-        }}
+        className="
+          fixed z-50
+          top-3 left-3
+          sm:top-4 sm:left-4
+          px-3 py-2 sm:px-4 sm:py-2.5
+          text-base sm:text-lg
+          rounded-full border
+          ext-black
+          dark:text-white dark:border-gray-600
+          hover:bg-gray-100 dark:hover:bg-gray-500
+          transition
+        "
       >
         {isDark ? '☀️' : '🌙'}
       </button>
+
       <Component {...pageProps} />
     </div>
   );

@@ -9,11 +9,7 @@ export default function Detail({ movie }) {
   useEffect(() => {
     const liked = JSON.parse(localStorage.getItem('likedMovies') || '[]');
     const likedMovie = liked.filter((m) => m.id === movie.id);
-    if (likedMovie.length > 0) {
-      setIsLiked(true);
-    } else {
-      setIsLiked(false);
-    }
+    setIsLiked(likedMovie.length > 0);
   }, [movie.id]);
 
   const handleLike = () => {
@@ -26,43 +22,79 @@ export default function Detail({ movie }) {
       const newLiked = [...liked, movie];
       localStorage.setItem('likedMovies', JSON.stringify(newLiked));
     }
+
     setIsLiked(!isLiked);
   };
 
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto', padding: '32px' }}>
+    <div className="max-w-[900px] mx-auto px-4 py-6">
+
+      {/* 🔙 뒤로가기 */}
       <button
         onClick={() => router.back()}
-        style={{ marginBottom: '24px', padding: '8px 16px', cursor: 'pointer' }}
+        className="
+          mb-6 px-4 py-2 rounded-lg border
+          transition
+          hover:bg-gray-100
+          dark:hover:bg-gray-500 dark:border-gray-600
+        "
       >
         ← 뒤로가기
       </button>
-      <div style={{ display: 'flex', gap: '32px' }}>
+
+      {/* 🎬 상세 영역 */}
+      <div className="
+        flex flex-col items-center
+        md:flex-row md:items-start
+        gap-6 md:gap-8
+      ">
+
+        {/* 포스터 */}
         <img
-          src={movie.poster_path ? `https://image.tmdb.org/t/p/w300${movie.poster_path}` : ''}
+          src={
+            movie.poster_path
+              ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
+              : ''
+          }
           alt={movie.title}
-          style={{ width: '250px', borderRadius: '12px' }}
+          className="
+            w-[200px] md:w-[250px]
+            rounded-xl
+          "
         />
-        <div>
-          <h1>{movie.title}</h1>
-          <p style={{ color: '#888' }}>📅 {movie.release_date}</p>
-          <p style={{ color: '#f5a623' }}>⭐ {movie.vote_average?.toFixed(1)}</p>
+
+        {/* 정보 */}
+        <div className="flex-1 text-center md:text-left">
+
+          <h1 className="text-2xl font-bold mb-2">
+            {movie.title}
+          </h1>
+
+          <p className="text-gray-500 dark:text-gray-400 mb-1">
+            📅 {movie.release_date}
+          </p>
+
+          <p className="text-yellow-500 mb-3">
+            ⭐ {movie.vote_average?.toFixed(1)}
+          </p>
+
+          {/* ❤️ 찜 버튼 */}
           <button
             onClick={handleLike}
-            style={{
-              marginTop: '16px',
-              padding: '10px 24px',
-              fontSize: '16px',
-              borderRadius: '24px',
-              border: 'none',
-              cursor: 'pointer',
-              backgroundColor: isLiked ? '#ff4757' : '#e0e0e0',
-              color: isLiked ? 'white' : 'black',
-            }}
+            className={`
+              px-6 py-2 rounded-full text-sm transition
+              ${isLiked
+                ? 'bg-red-500 text-white'
+                : 'border hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600'}
+            `}
           >
             {isLiked ? '❤️ 찜 취소' : '🤍 찜하기'}
           </button>
-          <p style={{ marginTop: '16px', lineHeight: '1.6' }}>{movie.overview}</p>
+          {/* 설명 */}
+          <p className="mt-4 leading-relaxed text-sm md:text-base">
+            {movie.overview}
+          </p>
+
         </div>
       </div>
     </div>

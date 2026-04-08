@@ -20,8 +20,20 @@ export async function searchMovies(query) {
   return data.results;
 }
 
-export async function fetchMovieDetail(id) {
+export async function fetchMovieDetail(id ) {
   const res = await fetch(`${BASE_URL}/movie/${id}?language=ko-KR`, options);
   const data = await res.json();
   return data;
+}
+
+export async function fetchmovieGenre(genreId) {
+  const res = await fetch(`${BASE_URL}/discover/movie?with_genres=${genreId}`, options);
+  const data = await res.json();
+  return data.results;
+}
+
+export async function fetchGenres() {
+  const res = await fetch(`${BASE_URL}/genre/movie/list?language=ko-KR`, options);
+  const data = await res.json();
+  return data.genres;
 }

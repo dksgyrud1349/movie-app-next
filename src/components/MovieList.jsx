@@ -2,12 +2,14 @@ import MovieCard from './MovieCard';
 
 function MovieList({ movies = [], onMovieClick }) {
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(3, 160px)',
-      gap: '24px',
-      justifyContent: 'center',
-    }}>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, 160px)',
+        gap: '24px',
+        justifyContent: 'center',
+      }}
+    >
       {movies.length > 0 ? (
         movies.map((movie) => (
           <MovieCard
