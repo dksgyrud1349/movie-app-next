@@ -14,29 +14,26 @@ export default function App({ Component, pageProps }) {
   };
 
   return (
-    <div
-      className={`${isDark ? 'dark' : ''} min-h-screen`}
-    >
-      {/* 🌙 다크모드 버튼 */}
-      <button
-        onClick={toggleDark}
-        className="
-          fixed z-50
-          top-3 left-3
-          sm:top-4 sm:left-4
-          px-3 py-2 sm:px-4 sm:py-2.5
-          text-base sm:text-lg
-          rounded-full border
-          ext-black
-          dark:text-white dark:border-gray-600
-          hover:bg-gray-100 dark:hover:bg-gray-500
-          transition
-        "
-      >
-        {isDark ? '☀️' : '🌙'}
-      </button>
+        <div className={`${isDark ? 'dark' : ''} min-h-screen`}>
+          
+          {/* 상단 영역 */}
+          <div className="max-w-[900px] mx-auto px-4 pt-4 flex justify-end">
+            <button
+              onClick={toggleDark}
+              className="
+                px-3 py-2 text-sm
+                rounded-full border
+                text-black
+                dark:text-white dark:border-gray-600
+                hover:bg-gray-100 dark:hover:bg-gray-700
+                transition
+              "
+            >
+              {isDark ? '☀️' : '🌙'}
+            </button>
+          </div>
 
-      <Component {...pageProps} />
-    </div>
+          <Component {...pageProps} />
+        </div>
   );
 }
