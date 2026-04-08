@@ -22,10 +22,10 @@ export default function Home({ initialMovies }) {
   };
 
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto', padding: '32px' }}>
+    <div style={{ maxWidth: '900px', margin: '0 auto', padding: '32px'}}>
       <button
         onClick={() => router.push('/liked')}
-        style={{ marginBottom: '24px', padding: '8px 16px', cursor: 'pointer', float: 'right' }}
+        style={{ marginBottom: '24px', padding: '8px 16px', cursor: 'pointer', float: 'right', border: '1px solid #e0e0e0', borderRadius: '12px'}}
       >
         ❤️ 찜 목록
       </button>
