@@ -1,4 +1,4 @@
-function MovieCard({ title, year, rating, poster, onClick }) {
+function MovieCard({ title, icon, year, rating, poster, onClick }) {
   return (
     <div
       onClick={onClick}
@@ -19,10 +19,9 @@ function MovieCard({ title, year, rating, poster, onClick }) {
       />
 
       <div style={{ padding: '10px' }}>
-        <h3 style={{ fontSize: '14px', fontWeight: 'bold' }}>{title}</h3>
-        <p style={{ fontSize: '12px', color: '#888' }}>
-          {year} ⭐ {rating}
-        </p>
+        <h3 style={{ fontSize: '14px', fontWeight: 'bold' }}>{icon} {title}</h3>
+        <p style={{ fontSize: '12px', color: '#888' }}>📅 {year}</p>
+        <p style={{ fontSize: '12px', color: '#888' }}>⭐ {rating}</p>
       </div>
     </div>
   );

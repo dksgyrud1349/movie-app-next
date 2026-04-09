@@ -1,6 +1,6 @@
 import MovieCard from './MovieCard';
 
-function MovieList({ movies = [], onMovieClick }) {
+function MovieList({ movies = [], onMovieClick, mode }) {
   return (
     <div
       style={{
@@ -14,8 +14,9 @@ function MovieList({ movies = [], onMovieClick }) {
         movies.map((movie) => (
           <MovieCard
             key={movie.id}
-            title={movie.title}
-            year={movie.release_date?.slice(0, 4)}
+            icon={mode === 'movie' ? '🎬' : '📺'}
+            title={mode === 'movie' ? movie.title : movie.name}
+            year={mode === 'movie' ? movie.release_date?.slice(0, 4) : movie.first_air_date?.slice(0, 4)}
             rating={movie.vote_average?.toFixed(1)}
             poster={movie.poster_path}
             onClick={() => onMovieClick(movie.id)}

@@ -1,36 +1,119 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import MovieList from '../components/MovieList';
-import { fetchPopularMovies, searchMovies, fetchmovieGenre, fetchGenres } from '../api';
+import { fetchPopularMovies, searchMovies, fetchMovieGenres, fetchMovieGenre, fetchPopularTV, searchTV, fetchTVGenres, fetchTVGenre } from '../api';
 
-export default function Home({ initialMovies, genres }) {
+export default function Home({ initialMovies }) {
   const [movies, setMovies] = useState(initialMovies);
   const [search, setSearch] = useState('');
   const [selectedGenre, setSelectedGenre] = useState(null);
+  const [genres, setGenres] = useState([]);
+  const [mode, setMode] = useState('movie');  // 'movie' || 'tv'
   const router = useRouter();
+
+  useEffect(() => {
+    setSelectedGenre(null);
+    const load = async() => {
+      if(mode !== router.query.mode) {
+        setSearch('');
+        if(mode === 'movie') {
+          const data = await fetchPopularMovies();
+          setMovies(data);
+        } else if(mode === 'tv') {
+          const data = await fetchPopularTV();
+          setMovies(data);
+        }
+      }
+    }; load();
+    if (!router.query.search) {
+      setSearch('');
+      const load = async () => { // ← API 호출을 조건 안으로 이동
+        if(mode === 'movie') {
+          const data = await fetchPopularMovies();
+          setMovies(data);
+          const genreData = await fetchMovieGenres();
+          setGenres(genreData);
+        } else if(mode === 'tv') {
+          const data = await fetchPopularTV();
+          setMovies(data);
+          const genreData = await fetchTVGenres();
+          setGenres(genreData);
+        }
+      };
+      load();
+    }
+  }, [mode]);
+
+  useEffect(() => {
+    if (router.isReady) {
+      const load = async () => { // ← async 함수로 감싸기
+        if(router.query.mode) {
+          setMode(router.query.mode);
+        }
+        if(router.query.search) {
+          setSearch(router.query.search);
+          if(router.query.mode === 'movie') {
+            const data = await searchMovies(router.query.search);
+            setMovies(data);
+            const genreData = await fetchMovieGenres();
+            setGenres(genreData);
+          } else if(router.query.mode === 'tv') {
+            const data = await searchTV(router.query.search);
+            setMovies(data);
+            const genreData = await fetchTVGenres();
+            setGenres(genreData);
+          }
+        }
+      };
+      load();
+    }
+  }, [router.isReady]);
 
   const handleSearch = async (e) => {
     const value = e.target.value;
     setSearch(value);
-
+    router.push(`/?mode=${mode}&search=${value}`, undefined, { shallow: true });
     if (value.trim() === '') {
-      const data = await fetchPopularMovies();
-      setMovies(data);
+      // TODO: mode에 따라 fetchPopularMovies or fetchPopularTV
+      if(mode === 'movie') {
+        const data = await fetchPopularMovies();
+        setMovies(data);
+      } else if(mode === 'tv') {
+        const data = await fetchPopularTV();
+        setMovies(data);
+      }
     } else {
-      const data = await searchMovies(value);
-      setMovies(data);
+      // TODO: mode에 따라 searchMovies or searchTV
+      if(mode === 'movie') {
+        const data = await searchMovies(value);
+        setMovies(data);
+      } else if(mode === 'tv') {
+        const data = await searchTV(value);
+        setMovies(data);
+      }
     }
   };
 
   const handleGenre = async (genreId) => {
     setSelectedGenre(genreId);
-
     if (genreId === null) {
-      const data = await fetchPopularMovies();
-      setMovies(data);
+      // TODO: mode에 따라 fetchPopularMovies or fetchPopularTV
+      if(mode === 'movie') {
+        const data = await fetchPopularMovies();
+        setMovies(data);
+      } else {
+        const data = await fetchPopularTV();
+        setMovies(data);
+      }
     } else {
-      const data = await fetchmovieGenre(genreId);
-      setMovies(data);
+      // TODO: mode에 따라 fetchmovieGenre or fetchTVGenre
+      if(mode === 'movie') {
+        const data = await fetchMovieGenre(genreId);
+        setMovies(data);
+      } else {
+        const data = await fetchTVGenre(genreId);
+        setMovies(data);
+      }
     }
   };
 
@@ -56,25 +139,34 @@ export default function Home({ initialMovies, genres }) {
       <div className="flex flex-wrap justify-center items-center gap-2 mb-6">
         {/* 드라마 */}
         <button
-          className="px-4 py-2 rounded-full border text-sm transition 
-                    hover:bg-gray-100 dark:hover:bg-gray-500
-                    dark:border-gray-600"
+          onClick={() => {
+            setMode('tv');
+            router.push('/?mode=tv', undefined, { shallow: true });
+          }}
+          className={`px-4 py-2 rounded-full border text-sm transition 
+            hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
+            ${mode === 'tv' ? 'bg-black text-white dark:bg-white dark:text-black' : ''}`}
         >
-          📺 드라마
+          📺 TV / 드라마
         </button>
 
         {/* 영화 */}
         <button
-          className="px-4 py-2 rounded-full border text-sm transition 
-                    hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600"
+          onClick={() => {
+            setMode('movie');
+            router.push('/?mode=movie', undefined, { shallow: true });
+          }}
+          className={`px-4 py-2 rounded-full border text-sm transition 
+            hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
+            ${mode === 'movie' ? 'bg-black text-white dark:bg-white dark:text-black' : ''}
+          `}
         >
           🎬 영화
         </button>
-
         {/* 검색 */}
         <input
           type="text"
-          placeholder="드라마 / 영화 제목을 검색하세요"
+          placeholder="TV / 드라마 / 영화 제목을 검색하세요"
           value={search}
           onChange={handleSearch}
           className="
@@ -122,7 +214,8 @@ export default function Home({ initialMovies, genres }) {
       {/* 🎬 리스트 */}
       <MovieList
         movies={movies}
-        onMovieClick={(id) => router.push(`/detail/${id}`)}
+        onMovieClick={(id) => router.push(`/detail/${mode}/${id}?mode=${mode}`)}
+        mode={mode}
       />
     </div>
   );
@@ -130,12 +223,9 @@ export default function Home({ initialMovies, genres }) {
 
 export async function getServerSideProps() {
   const movies = await fetchPopularMovies();
-  const genres = await fetchGenres();
-
   return {
     props: {
       initialMovies: movies,
-      genres: genres,
     },
   };
 }

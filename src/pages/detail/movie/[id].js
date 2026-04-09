@@ -1,15 +1,25 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { fetchMovieDetail } from '../../api';
+import { fetchMovieDetail, fetchCollection } from '../../../api';
 
 export default function Detail({ movie }) {
   const router = useRouter();
   const [isLiked, setIsLiked] = useState(false);
+  const [collection, setCollection] = useState(null);
 
   useEffect(() => {
     const liked = JSON.parse(localStorage.getItem('likedMovies') || '[]');
     const likedMovie = liked.filter((m) => m.id === movie.id);
     setIsLiked(likedMovie.length > 0);
+
+    const load = async () => {
+      // TODO: movie.belongs_to_collection 있으면 fetchCollection 호출 후 setCollection
+      if(movie.belongs_to_collection) {
+        const collection = await fetchCollection(movie.belongs_to_collection.id);
+        setCollection(collection);
+      }
+    };
+    load();
   }, [movie.id]);
 
   const handleLike = () => {
@@ -54,7 +64,7 @@ export default function Detail({ movie }) {
           src={
             movie.poster_path
               ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
-              : ''
+              : null
           }
           alt={movie.title}
           className="
@@ -94,7 +104,38 @@ export default function Detail({ movie }) {
           <p className="mt-4 leading-relaxed text-sm md:text-base">
             {movie.overview}
           </p>
-
+          {/* 🎬 시리즈 정보 */}
+          {collection && (
+            <div className="mt-12">
+              <h2 className="text-xl font-bold mb-6">🎬 시리즈 정보</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {collection.parts.map((part) => (
+                  <div
+                    key={part.id}
+                    onClick={() => router.push(`/detail/movie/${part.id}`)}
+                    className="border rounded-xl overflow-hidden cursor-pointer hover:scale-105 transition-transform dark:border-gray-600"
+                  >
+                    <img
+                      src={part.poster_path
+                        ? `https://image.tmdb.org/t/p/w200${part.poster_path}`
+                        : null}
+                      alt={part.title}
+                      className="w-full h-[180px] object-cover"
+                    />
+                    <div className="p-3">
+                      <p className="font-bold text-sm">{/* TODO: 영화 제목 */ part.title}</p>
+                      <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">
+                        📅 {/* TODO: 개봉일 */ part.release_date}
+                      </p>
+                      <p className="text-yellow-500 text-xs">
+                        ⭐ {/* TODO: 평점 */ part.vote_average.toFixed(1)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
