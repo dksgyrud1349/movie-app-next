@@ -1,121 +1,102 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import MovieList from '../components/MovieList';
-import { fetchPopularMovies, searchMovies, fetchMovieGenres, fetchMovieGenre, fetchPopularTV, searchTV, fetchTVGenres, fetchTVGenre } from '../api';
+import {
+  fetchPopularMovies, searchMovies, fetchMovieGenres, fetchMovieGenre,
+  fetchPopularTV, searchTV, fetchTVGenres, fetchTVGenre
+} from '../api';
 
 export default function Home({ initialMovies }) {
   const [movies, setMovies] = useState(initialMovies);
-  const [search, setSearch] = useState('');
-  const [selectedGenre, setSelectedGenre] = useState(null);
   const [genres, setGenres] = useState([]);
-  const [mode, setMode] = useState('movie');  // 'movie' || 'tv'
+  const [inputSearch, setInputSearch] = useState('');
   const router = useRouter();
 
-  useEffect(() => {
-    setSelectedGenre(null);
-    const load = async() => {
-      if(mode !== router.query.mode) {
-        setSearch('');
-        if(mode === 'movie') {
-          const data = await fetchPopularMovies();
-          setMovies(data);
-        } else if(mode === 'tv') {
-          const data = await fetchPopularTV();
-          setMovies(data);
-        }
-      }
-    }; load();
-    if (!router.query.search) {
-      setSearch('');
-      const load = async () => { // ← API 호출을 조건 안으로 이동
-        if(mode === 'movie') {
-          const data = await fetchPopularMovies();
-          setMovies(data);
-          const genreData = await fetchMovieGenres();
-          setGenres(genreData);
-        } else if(mode === 'tv') {
-          const data = await fetchPopularTV();
-          setMovies(data);
-          const genreData = await fetchTVGenres();
-          setGenres(genreData);
-        }
-      };
-      load();
-    }
-  }, [mode]);
+  const {
+    mode = 'movie',
+    search = '',
+    genre = '',
+    page = '1',
+  } = router.query;
 
+  // 디바운스 - 0.5초 후 URL 업데이트
   useEffect(() => {
-    if (router.isReady) {
-      const load = async () => { // ← async 함수로 감싸기
-        if(router.query.mode) {
-          setMode(router.query.mode);
-        }
-        if(router.query.search) {
-          setSearch(router.query.search);
-          if(router.query.mode === 'movie') {
-            const data = await searchMovies(router.query.search);
-            setMovies(data);
-            const genreData = await fetchMovieGenres();
-            setGenres(genreData);
-          } else if(router.query.mode === 'tv') {
-            const data = await searchTV(router.query.search);
-            setMovies(data);
-            const genreData = await fetchTVGenres();
-            setGenres(genreData);
-          }
-        }
-      };
-      load();
+    const timer = setTimeout(() => {
+      if (router.isReady) {
+        updateURL({ search: inputSearch, page: '1' });
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [inputSearch]);
+
+  // 뒤로가기 시 검색어 복원
+  useEffect(() => {
+    if (router.isReady && router.query.search) {
+      setInputSearch(router.query.search);
     }
   }, [router.isReady]);
 
-  const handleSearch = async (e) => {
-    const value = e.target.value;
-    setSearch(value);
-    router.push(`/?mode=${mode}&search=${value}`, undefined, { shallow: true });
-    if (value.trim() === '') {
-      // TODO: mode에 따라 fetchPopularMovies or fetchPopularTV
-      if(mode === 'movie') {
-        const data = await fetchPopularMovies();
-        setMovies(data);
-      } else if(mode === 'tv') {
-        const data = await fetchPopularTV();
-        setMovies(data);
+  // API 호출
+  useEffect(() => {
+    if (!router.isReady) return;
+
+    const savedScrollY = sessionStorage.getItem('scrollY');
+
+    const load = async () => {
+      const currentPage = Number(page);
+      const genreId = genre && genre !== 'null' ? Number(genre) : null;
+
+      const genreData = mode === 'movie'
+        ? await fetchMovieGenres()
+        : await fetchTVGenres();
+      setGenres(genreData);
+
+      let allMovies = [];
+      for (let i = 1; i <= currentPage; i++) {
+        let data = [];
+        if (search.trim() !== '') {
+          data = mode === 'movie'
+            ? await searchMovies(search, i, genreId)
+            : await searchTV(search, i, genreId);
+        } else if (genreId) {
+          data = mode === 'movie'
+            ? await fetchMovieGenre(genreId, i)
+            : await fetchTVGenre(genreId, i);
+        } else {
+          data = mode === 'movie'
+            ? await fetchPopularMovies(i)
+            : await fetchPopularTV(i);
+        }
+        allMovies = [...allMovies, ...data];
       }
-    } else {
-      // TODO: mode에 따라 searchMovies or searchTV
-      if(mode === 'movie') {
-        const data = await searchMovies(value);
-        setMovies(data);
-      } else if(mode === 'tv') {
-        const data = await searchTV(value);
-        setMovies(data);
+      setMovies(allMovies);
+
+      if (savedScrollY) {
+        window.scrollTo(0, Number(savedScrollY));
+        sessionStorage.removeItem('scrollY');
       }
-    }
+    };
+
+    load();
+  }, [router.isReady, router.query]);
+
+  const updateURL = (params) => {
+    router.push(
+      { pathname: '/', query: { mode, search, genre, page: '1', ...params } },
+      undefined,
+      { shallow: true }
+    );
   };
 
-  const handleGenre = async (genreId) => {
-    setSelectedGenre(genreId);
-    if (genreId === null) {
-      // TODO: mode에 따라 fetchPopularMovies or fetchPopularTV
-      if(mode === 'movie') {
-        const data = await fetchPopularMovies();
-        setMovies(data);
-      } else {
-        const data = await fetchPopularTV();
-        setMovies(data);
-      }
-    } else {
-      // TODO: mode에 따라 fetchmovieGenre or fetchTVGenre
-      if(mode === 'movie') {
-        const data = await fetchMovieGenre(genreId);
-        setMovies(data);
-      } else {
-        const data = await fetchTVGenre(genreId);
-        setMovies(data);
-      }
-    }
+  const handleMode = (newMode) => {
+    setInputSearch('');
+    updateURL({ mode: newMode, search: '', genre: '', page: '1' });
   };
+  const handleGenre = (genreId) => {
+    setInputSearch('');
+    updateURL({ genre: genreId, search: '', page: '1' });
+  };
+  const handleMore = () => updateURL({ page: String(Number(page) + 1) });
 
   return (
     <div className="max-w-[900px] mx-auto px-4 py-6">
@@ -123,8 +104,7 @@ export default function Home({ initialMovies }) {
       <div className="flex justify-end">
         <button
           onClick={() => router.push('/liked')}
-          className="px-4 py-2 border rounded-xl text-sm hover:shadow transition dark:border-gray-600
-                    hover:bg-gray-100 dark:hover:bg-gray-500"
+          className="px-4 py-2 border rounded-xl text-sm hover:shadow transition dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-500"
         >
           ❤️ 찜 목록
         </button>
@@ -135,78 +115,61 @@ export default function Home({ initialMovies }) {
         🎬 드라마 / 영화 검색 앱
       </h1>
 
-      {/* 🔍 검색 + 버튼 */}
+      {/* 🔍 검색 + 모드 버튼 */}
       <div className="flex flex-wrap justify-center items-center gap-2 mb-6">
-        {/* 드라마 */}
         <button
-          onClick={() => {
-            setMode('tv');
-            router.push('/?mode=tv', undefined, { shallow: true });
-          }}
-          className={`px-4 py-2 rounded-full border text-sm transition 
-            hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
-            ${mode === 'tv' ? 'bg-black text-white dark:bg-white dark:text-black' : ''}`}
+          onClick={() => handleMode('tv')}
+          className={`px-4 py-2 rounded-full border text-sm transition
+            hover:bg-blue-600 dark:border-gray-600
+            ${mode === 'tv' ? 'bg-blue-700 text-white' : ''}`}
         >
           📺 TV / 드라마
         </button>
 
-        {/* 영화 */}
         <button
-          onClick={() => {
-            setMode('movie');
-            router.push('/?mode=movie', undefined, { shallow: true });
-          }}
-          className={`px-4 py-2 rounded-full border text-sm transition 
-            hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
-            ${mode === 'movie' ? 'bg-black text-white dark:bg-white dark:text-black' : ''}
-          `}
+          onClick={() => handleMode('movie')}
+          className={`px-4 py-2 rounded-full border text-sm transition
+            hover:bg-blue-600 dark:border-gray-600
+            ${mode === 'movie' ? 'bg-blue-700 text-white' : ''}`}
         >
           🎬 영화
         </button>
-        {/* 검색 */}
+
         <input
           type="text"
           placeholder="TV / 드라마 / 영화 제목을 검색하세요"
-          value={search}
-          onChange={handleSearch}
-          className="
-            px-4 py-3 text-sm rounded-full border
-            w-full max-w-[420px] min-w-[220px]
+          value={inputSearch}
+          onChange={(e) => setInputSearch(e.target.value)}
+          className="px-4 py-3 text-sm rounded-full border w-full max-w-[420px] min-w-[220px]
             focus:outline-none focus:ring-2 focus:ring-gray-300
-            dark:border-gray-600
-            placeholder-gray-400 dark:placeholder-gray-500
-          "
+            dark:border-gray-600 placeholder-gray-400 dark:placeholder-gray-500"
         />
       </div>
 
       {/* 🎭 장르 */}
       <div className="flex flex-wrap justify-center gap-2 mb-8">
         <button
-          onClick={() => handleGenre(null)}
-          className={`
-            px-4 py-1.5 rounded-full text-sm border transition
-            ${selectedGenre === null
-              ? 'bg-black text-white dark:bg-white dark:text-black'
-              : 'hover:bg-gray-100 dark:hover:bg-gray-500'}
-            dark:border-gray-600
-          `}
+          onClick={() => handleGenre('')}
+          className={`px-4 py-1.5 rounded-full text-sm border transition
+            ${!genre || genre === 'null'
+              ? 'bg-blue-600 text-white'
+              : 'hover:bg-blue-700'}
+            dark:border-gray-600`}
         >
           전체
         </button>
 
-        {genres.map((genre) => (
+        {genres.map((g) => (
           <button
-            key={genre.id}
-            onClick={() => handleGenre(genre.id)}
-            className={`
-              px-4 py-1.5 rounded-full text-sm border transition
-              ${selectedGenre === genre.id
-                ? 'bg-black text-white dark:bg-white dark:text-black'
-                : 'hover:bg-gray-100 dark:hover:bg-gray-500'}
-              dark:border-gray-600
-            `}
+            key={g.id}
+            onClick={() => handleGenre(g.id)}
+            className={`px-4 py-1.5 rounded-full text-sm border transition
+              ${Number(genre) === g.id
+                ? 'bg-blue-600 text-white'
+                : 'hover:bg-blue-700'}
+              dark:border-gray-600`}
           >
-            {genre.name}
+            {g.name}
           </button>
         ))}
       </div>
@@ -214,9 +177,22 @@ export default function Home({ initialMovies }) {
       {/* 🎬 리스트 */}
       <MovieList
         movies={movies}
-        onMovieClick={(id) => router.push(`/detail/${mode}/${id}?mode=${mode}`)}
+        onMovieClick={(id) => {
+          sessionStorage.setItem('scrollY', window.scrollY);
+          router.push(`/detail/${mode}/${id}`);
+        }}
         mode={mode}
       />
+
+      {/* 더보기 버튼 */}
+      <div className="flex justify-center mt-8">
+        <button
+          onClick={handleMore}
+          className="px-8 py-3 rounded-full border text-sm transition hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600"
+        >
+          더보기
+        </button>
+      </div>
     </div>
   );
 }
@@ -224,8 +200,6 @@ export default function Home({ initialMovies }) {
 export async function getServerSideProps() {
   const movies = await fetchPopularMovies();
   return {
-    props: {
-      initialMovies: movies,
-    },
+    props: { initialMovies: movies },
   };
 }

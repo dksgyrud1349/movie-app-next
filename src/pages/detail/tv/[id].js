@@ -38,7 +38,7 @@ export default function TVDetail({ tv }) {
       <div className="flex flex-col items-center md:flex-row md:items-start gap-6 md:gap-8">
         {/* 포스터 */}
         <img
-          src={tv.poster_path ? `https://image.tmdb.org/t/p/w300${tv.poster_path}` : null}
+          src={tv.poster_path ? `https://image.tmdb.org/t/p/w300${tv.poster_path}` : "/no-image.jpg"}
           alt={tv.name}
           className="w-[200px] md:w-[250px] rounded-xl"
         />
@@ -82,7 +82,7 @@ export default function TVDetail({ tv }) {
                     <img
                       src={season.poster_path
                         ? `https://image.tmdb.org/t/p/w200${season.poster_path}`
-                        : ''}
+                        : "/no-image.jpg"}
                       alt={season.name}
                       className="w-full h-[180px] object-cover"
                     />
