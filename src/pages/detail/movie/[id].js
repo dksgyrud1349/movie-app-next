@@ -87,6 +87,7 @@ export default function Detail({ movie }) {
         <meta name="description" content={movie.overview} />
         <meta property="og:title" content={movie.title} />
         <meta property="og:image" content={movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : "/no-image.jpg"} />
+        <meta property="og:url" content={`https://movie-app-next-hdkd.vercel.app/detail/movie/${tv.id}`} />
       </Head>
       {/* 🔙 뒤로가기 */}
       <button
