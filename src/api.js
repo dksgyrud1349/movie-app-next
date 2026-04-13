@@ -61,6 +61,14 @@ export async function fetchMovieVideos(id) {
   return data.results;
 }
 
+// 영화 비슷한 작품 추천
+export async function fetchSimilarMovie(id) {
+  const res = await fetch(`${BASE_URL}/movie/${id}/similar?language=ko-KR`, options);
+  const data = await res.json();
+  console.log(data.results);
+  return data.results;
+}
+
 // 드라마
 // 인기 드라마
 export async function fetchPopularTV(page=1) {
@@ -103,6 +111,13 @@ export async function fetchTVGenre(genreId, page=1) {
 // 드라마 트레일러
 export async function fetchTVVideos(id) {
   const res = await fetch(`${BASE_URL}/tv/${id}/videos?language=ko-KR`, options);
+  const data = await res.json();
+  return data.results;
+}
+
+// 드라마 비슷한 작품 추천
+export async function fetchSimilarTV(id) {
+  const res = await fetch(`${BASE_URL}/tv/${id}/similar?language=ko-KR`, options);
   const data = await res.json();
   return data.results;
 }

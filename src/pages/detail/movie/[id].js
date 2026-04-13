@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { fetchMovieDetail, fetchCollection, fetchMovieVideos } from '../../../api';
+import MovieCard from '../../../components/MovieCard';
+import { fetchMovieDetail, fetchCollection, fetchMovieVideos, fetchSimilarMovie } from '../../../api';
 
 export default function Detail({ movie }) {
   const router = useRouter();
@@ -8,6 +9,25 @@ export default function Detail({ movie }) {
   const [collection, setCollection] = useState(null);
   const [trailers, setTrailers] = useState([]);
   const [selectedTrailer, setSelectedTrailer] = useState(0);
+  const [similar, setSimilar] = useState([]);
+  const [activeTab, setActiveTab] = useState('series'); // 'series' | 'similar'
+  const [seriesPage, setSeriesPage] = useState(1);
+  const [similarPage, setSimilarPage] = useState(1);
+  const ITEMS_PER_PAGE = 8;
+
+  const showTabs = collection && similar.length > 0;
+  const showSeries = showTabs ? activeTab === 'series' : !!collection;
+  const showSimilar = showTabs ? activeTab === 'similar' : similar.length > 0;
+
+  const pagedSeries = collection?.parts.slice(
+    (seriesPage - 1) * ITEMS_PER_PAGE,
+    seriesPage * ITEMS_PER_PAGE
+  );
+
+  const pagedSimilar = similar.slice(
+    (similarPage - 1) * ITEMS_PER_PAGE,
+    similarPage * ITEMS_PER_PAGE
+  );
 
   useEffect(() => {
     const liked = JSON.parse(localStorage.getItem('likedMovies') || '[]');
@@ -27,7 +47,12 @@ export default function Detail({ movie }) {
       const trailerList = trailerData.filter((v) => v.type === 'Trailer' && v.site === 'YouTube');
       const teaserList = trailerData.filter((v) => v.type === 'Teaser' && v.site === 'YouTube');
       setTrailers(trailerList.length > 0 ? trailerList : teaserList);
+
+      // 비슷한 작품
+      const similarDataList = await fetchSimilarMovie(movie.id);
+      setSimilar(similarDataList);
     };
+
     load();
   }, [movie.id]);
 
@@ -146,34 +171,78 @@ export default function Detail({ movie }) {
               </div>
             </div>
           )}
-          {/* 🎬 시리즈 정보 */}
-          {collection && (
-            <div className="mt-12">
+
+          {/* 둘 다 있을 때만 탭 버튼 */}
+          {collection && similar.length > 0 && (
+            <div className="flex gap-2 mt-8">
+              <div className="flex gap-2 mt-8">
+                <button
+                  onClick={() => setActiveTab('series')}
+                  className={`px-4 py-1.5 rounded-full text-sm border transition
+                    ${activeTab === 'series'
+                      ? 'bg-black text-white dark:bg-white dark:text-black'
+                      : 'hover:bg-gray-100 dark:hover:bg-gray-500'}
+                    dark:border-gray-600`}
+                >
+                  🎬 시리즈 정보
+                </button>
+                <button
+                  onClick={() => setActiveTab('similar')}
+                  className={`px-4 py-1.5 rounded-full text-sm border transition
+                    ${activeTab === 'similar'
+                      ? 'bg-black text-white dark:bg-white dark:text-black'
+                      : 'hover:bg-gray-100 dark:hover:bg-gray-500'}
+                    dark:border-gray-600`}
+                >
+                  🎬 비슷한 작품
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* 시리즈 정보 */}
+          {(collection && similar.length > 0 ? activeTab === 'series' : collection) && (
+            <div className='mt-8'>
               <h2 className="text-xl font-bold mb-6">🎬 시리즈 정보</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, 160px)',
+                gap: '24px',
+                justifyContent: 'center',
+              }}>
                 {collection.parts.map((part) => (
-                  <div
+                  <MovieCard
                     key={part.id}
+                    title={part.title}
+                    year={part.release_date?.slice(0, 4)}
+                    rating={part.vote_average?.toFixed(1)}
+                    poster={part.poster_path}
                     onClick={() => router.push(`/detail/movie/${part.id}`)}
-                    className="border rounded-xl overflow-hidden cursor-pointer hover:scale-105 transition-transform dark:border-gray-600"
-                  >
-                    <img
-                      src={part.poster_path
-                        ? `https://image.tmdb.org/t/p/w200${part.poster_path}`
-                        : null}
-                      alt={part.title}
-                      className="w-full h-[180px] object-cover"
-                    />
-                    <div className="p-3">
-                      <p className="font-bold text-sm">{/* TODO: 영화 제목 */ part.title}</p>
-                      <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">
-                        📅 {/* TODO: 개봉일 */ part.release_date}
-                      </p>
-                      <p className="text-yellow-500 text-xs">
-                        ⭐ {/* TODO: 평점 */ part.vote_average.toFixed(1)}
-                      </p>
-                    </div>
-                  </div>
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 비슷한 작품 */}
+          {(collection && similar.length > 0 ? activeTab === 'similar' : similar.length > 0) && (
+            <div className='mt-8'>
+              <h2 className="text-xl font-bold mb-6">🎬 비슷한 작품</h2>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, 160px)',
+                gap: '24px',
+                justifyContent: 'center',
+              }}>
+                {similar.map((item) => (
+                  <MovieCard
+                    key={item.id}
+                    title={item.title}
+                    year={item.release_date?.slice(0, 4)}
+                    rating={item.vote_average?.toFixed(1)}
+                    poster={item.poster_path}
+                    onClick={() => router.push(`/detail/movie/${item.id}`)}
+                  />
                 ))}
               </div>
             </div>

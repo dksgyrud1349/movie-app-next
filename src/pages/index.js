@@ -69,10 +69,10 @@ export default function Home({ initialMovies }) {
         allMovies = [...allMovies, ...results];
       }
       // id 기준으로 중복 제거
-      const uniqueMovies = allMovies.filter(
-        (movie, index, self) => self.findIndex((m) => m.id === movie.id) === index
-      );
-      setMovies(uniqueMovies);
+    const uniqueMovies = allMovies.filter(
+      (movie, index, self) => self.findIndex((m) => m.id === movie.id) === index
+    );
+    setMovies(uniqueMovies);
 
       if (savedScrollY) {
         window.scrollTo(0, Number(savedScrollY));
