@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import MovieList from '../components/MovieList';
+import SkeletonCard from '@/components/SkeletonCard';
 import {
   fetchPopularMovies, searchMovies, fetchMovieGenres, fetchMovieGenre,
   fetchPopularTV, searchTV, fetchTVGenres, fetchTVGenre
@@ -11,6 +12,9 @@ export default function Home({ initialMovies }) {
   const [genres, setGenres] = useState([]);
   const [inputSearch, setInputSearch] = useState('');
   const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const [history, setHistory] = useState([]);
   const router = useRouter();
 
   const {
@@ -21,11 +25,33 @@ export default function Home({ initialMovies }) {
   } = router.query;
 
   useEffect(() => {
+    setHistory(JSON.parse(localStorage.getItem('searchHistory') || '[]'));
+  }, []);
+
+  useEffect(() => {
     const timer = setTimeout(() => {
-      if (router.isReady) {
-        updateURL({ search: inputSearch, genre: '', page: '1' }); // ← genre: '' 추가
+      if (router.isReady && inputSearch.trim() !== '') {
+        // 검색어 저장
+        const prev = (() => {
+          try {
+            return JSON.parse(localStorage.getItem('searchHistory') || '[]');
+          } catch {
+            setHistory([]);
+            localStorage.removeItem('searchHistory');
+          }
+        })();
+        // 힌트 1: 중복 제거 - filter로 기존에 같은 검색어 제거
+        const dupNoPrev = prev.filter((m) => m !== inputSearch);
+        // 힌트 2: 맨 앞에 추가 - [inputSearch, ...중복제거된배열]
+        // 힌트 3: 최대 10개만 저장 - slice(0, 10)
+        const newSearchHistory = [inputSearch, ...dupNoPrev].slice(0, 10);
+        // 힌트 4: setHistory로 상태 업데이트
+        setHistory(newSearchHistory);
+        // 힌트 5: localStorage에 저장
+        localStorage.setItem('searchHistory', JSON.stringify(newSearchHistory));
+        updateURL({ search: inputSearch, genre: '', page: '1' });
       }
-    }, 500);
+    }, 5000);
     return () => clearTimeout(timer);
   }, [inputSearch]);
 
@@ -43,6 +69,7 @@ export default function Home({ initialMovies }) {
     const savedScrollY = sessionStorage.getItem('scrollY');
 
     const load = async () => {
+      setLoading(true);  // 로딩 시작
       const currentPage = Number(page);
       const genreId = genre && genre !== 'null' ? Number(genre) : null;
 
@@ -72,6 +99,7 @@ export default function Home({ initialMovies }) {
         (movie, index, self) => self.findIndex((m) => m.id === movie.id) === index
       );
       setMovies(uniqueMovies);
+      setLoading(false);  // 로딩 종료
 
       if (savedScrollY) {
         window.scrollTo(0, Number(savedScrollY));
@@ -141,15 +169,68 @@ export default function Home({ initialMovies }) {
           🎬 영화
         </button>
 
-        <input
-          type="text"
-          placeholder="TV / 드라마 / 영화 제목을 검색하세요"
-          value={inputSearch}
-          onChange={(e) => setInputSearch(e.target.value)}
-          className="px-4 py-3 text-sm rounded-full border w-full max-w-[420px] min-w-[220px]
-            focus:outline-none focus:ring-2 focus:ring-gray-300
-            dark:border-gray-600 placeholder-gray-400 dark:placeholder-gray-500"
-        />
+        <div className="relative w-full max-w-[420px] min-w-[220px]">
+          <input
+            type="text"
+            placeholder="TV / 드라마 / 영화 제목을 검색하세요"
+            value={inputSearch}
+            onChange={(e) => setInputSearch(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setTimeout(() => setIsFocused(false), 150)}
+            className="px-4 py-3 text-sm rounded-full border w-full
+              focus:outline-none focus:ring-2 focus:ring-gray-300
+              dark:border-gray-600 placeholder-gray-400 dark:placeholder-gray-500"
+          />
+          {/* 검색 기록 드롭다운 */}
+          {isFocused && history.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800
+              border dark:border-gray-600 rounded-2xl shadow-lg z-50 overflow-hidden">
+
+              {/* 헤더 */}
+              <div className="flex justify-between items-center px-4 py-2 border-b dark:border-gray-600">
+                <span className="text-xs text-gray-500 dark:text-gray-400">최근 검색어</span>
+                <button
+                  onClick={() => {/* TODO: 전체 검색 기록 삭제 */
+                    localStorage.setItem('searchHistory', '[]');
+                    setHistory([]);
+                  }}
+                  className="text-xs text-gray-400 hover:text-red-400 transition"
+                >
+                  전체 삭제
+                </button>
+              </div>
+
+              {/* 검색 기록 목록 */}
+              {/* TODO: 검색 기록 배열을 map으로 순회 */}
+              {history.map((item) => (
+                <div
+                  className="flex items-center justify-between px-4 py-2
+                    hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                      key={item}
+                >
+                  <div
+                    className="flex items-center gap-2 flex-1"
+                    onClick={() => {/* TODO: 해당 검색어로 검색 실행 */ setInputSearch(item)}}
+                  >
+                    <span className="text-gray-400 text-sm">🕐</span>
+                    <span className="text-sm text-white">{/* TODO: 검색어 */ item}</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      /* TODO: 해당 검색어 삭제 */
+                      const delHistory = history.filter((e) => e !== item);
+                      setHistory(delHistory);
+                      localStorage.setItem('searchHistory', JSON.stringify(delHistory));
+                    }}
+                    className="text-gray-300 hover:text-red-400 transition text-sm ml-2"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* 🎭 장르 */}
@@ -180,15 +261,28 @@ export default function Home({ initialMovies }) {
         ))}
       </div>
 
-      {/* 🎬 리스트 */}
-      <MovieList
-        movies={movies}
-        onMovieClick={(id) => {
-          sessionStorage.setItem('scrollY', window.scrollY);
-          router.push(`/detail/${mode}/${id}`);
-        }}
-        mode={mode}
-      />
+      {loading ? (
+        // 스켈레톤 카드 8개 보여주기
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, 160px)',
+          gap: '24px',
+          justifyContent: 'center',
+        }}>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+      ) : (
+        <MovieList
+          movies={movies}
+          onMovieClick={(id) => {
+            sessionStorage.setItem('scrollY', window.scrollY);
+            router.push(`/detail/${mode}/${id}`);
+          }}
+          mode={mode}
+        />
+      )}
 
       {/* 더보기 버튼 */}
       {Number(page) < totalPages && (
