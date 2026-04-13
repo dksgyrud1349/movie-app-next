@@ -80,7 +80,7 @@ export default function Detail({ movie }) {
   };
 
   return (
-    <div className="max-w-[900px] mx-auto px-4 py-6">
+    <div className="max-w-[1400px] mx-auto px-4 py-6">
 
       {/* 🔙 뒤로가기 */}
       <button

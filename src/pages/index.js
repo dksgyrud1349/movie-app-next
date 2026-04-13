@@ -105,7 +105,7 @@ export default function Home({ initialMovies }) {
   };
 
   return (
-    <div className="max-w-[900px] mx-auto px-4 py-6">
+    <div className="max-w-[1400px] mx-auto px-4 py-6">
       {/* ❤️ 찜 */}
       <div className="flex justify-end">
         <button
