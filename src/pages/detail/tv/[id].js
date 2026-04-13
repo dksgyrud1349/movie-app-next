@@ -1,14 +1,42 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { fetchTVDetail, fetchTVVideos } from '../../../api';
+import MovieCard from '@/components/MovieCard';
+import { fetchTVDetail, fetchTVVideos, fetchSimilarTV } from '../../../api';
 
 export default function TVDetail({ tv }) {
   const router = useRouter();
   const [isLiked, setIsLiked] = useState(false);
   const [trailers, setTrailers] = useState([]);
   const [selectedTrailer, setSelectedTrailer] = useState(0);
+  const [similar, setSimilar] = useState([]);
+  const [activeTab, setActiveTab] = useState('season'); // 'season' | 'similar'
+  const [seasonPage, setSeasonPage] = useState(1);
+  const [similarPage, setSimilarPage] = useState(1);
+  const ITEMS_PER_PAGE = 6;
+
+  const showTabs = tv.seasons && tv.seasons.length > 0 && similar.length > 0;
+  const showSeason = showTabs ? activeTab === 'season' : tv.seasons?.length > 0;
+  const showSimilar = showTabs ? activeTab === 'similar' : similar.length > 0;
+
+  const pagedSeason = tv.seasons?.slice(
+    (seasonPage - 1) * ITEMS_PER_PAGE,
+    seasonPage * ITEMS_PER_PAGE
+  );
+
+  const pagedSimilar = similar.slice(
+    (similarPage - 1) * ITEMS_PER_PAGE,
+    similarPage * ITEMS_PER_PAGE
+  );
 
   useEffect(() => {
+    // 상태 초기화 추가
+    setSimilar([]);
+    setTrailers([]);
+    setSelectedTrailer(0);
+    setSeasonPage(1);
+    setSimilarPage(1);
+    setActiveTab('season');
+
     const liked = JSON.parse(localStorage.getItem('likedTV') || '[]');
     const likedTV = liked.filter((m) => m.id === tv.id);
     setIsLiked(likedTV.length > 0);
@@ -20,6 +48,10 @@ export default function TVDetail({ tv }) {
       const trailerList = trailerData.filter((v) => v.type === 'Trailer' && v.site === 'YouTube');
       const teaserList = trailerData.filter((v) => v.type === 'Teaser' && v.site === 'YouTube');
       setTrailers(trailerList.length > 0 ? trailerList : teaserList);
+
+      // 비슷한 작품
+      const similarDataList = await fetchSimilarTV(tv.id);
+      setSimilar(similarDataList);
     };
     load();
   }, [tv.id]);
@@ -114,37 +146,136 @@ export default function TVDetail({ tv }) {
               </div>
             </div>
           )}
-          {/* 🎬 시즌 정보 */}
-          {tv.seasons && tv.seasons.length > 0 && (
-            <div className="mt-12">
-              <h2 className="text-xl font-bold mb-6">📺 시즌 정보</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {tv.seasons.map((season) => (
-                  <div
-                    key={season.season_number}
-                    className="border rounded-xl overflow-hidden dark:border-gray-600"
-                  >
-                    <img
-                      src={season.poster_path
-                        ? `https://image.tmdb.org/t/p/w200${season.poster_path}`
-                        : "/no-image.jpg"}
-                      alt={season.name}
-                      className="w-full h-[180px] object-cover"
-                    />
-                    <div className="p-3">
-                      <p className="font-bold text-sm">{/* TODO: 시즌 이름 */ season.name}</p>
-                      <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">
-                       에피소드 수 : {/* TODO: 에피소드 수 */ season.episode_count}
-                      </p>
-                      <p className="text-gray-500 dark:text-gray-400 text-xs">
-                        {/* TODO: 방영일 */ season.air_date}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+
+          {/* 둘 다 있을 때만 탭 버튼 */}
+          {tv.seasons && similar.length > 0 && (
+            <div className="flex gap-2 mt-8">
+              <div className="flex gap-2 mt-8">
+                <button
+                  onClick={() => setActiveTab('season')}
+                  className={`px-4 py-1.5 rounded-full text-sm border transition
+                    ${activeTab === 'season'
+                      ? 'bg-black text-white dark:bg-white dark:text-black'
+                      : 'hover:bg-gray-100 dark:hover:bg-gray-500'}
+                    dark:border-gray-600`}
+                >
+                  📺 시즌 정보
+                </button>
+                <button
+                  onClick={() => setActiveTab('similar')}
+                  className={`px-4 py-1.5 rounded-full text-sm border transition
+                    ${activeTab === 'similar'
+                      ? 'bg-black text-white dark:bg-white dark:text-black'
+                      : 'hover:bg-gray-100 dark:hover:bg-gray-500'}
+                    dark:border-gray-600`}
+                >
+                  📺 비슷한 작품
+                </button>
               </div>
             </div>
           )}
+
+          {showSeason && (
+            <div className='mt-8'>
+              <h2 className="text-xl font-bold mb-6">📺 시즌 정보</h2>
+
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, 160px)',
+                gap: '24px',
+                justifyContent: 'center',
+              }}>
+                {pagedSeason.map((item) => (
+                  <MovieCard
+                    key={item.id}
+                    title={item.name}
+                    year={item.air_date?.slice(0, 4)}
+                    rating={item.vote_average?.toFixed(1)}
+                    poster={item.poster_path}
+                    onClick={() => router.push(`/detail/tv/${tv.id}/season/${item.season_number}`)}
+                  />
+                ))}
+              </div>
+
+              {/* 페이지 */}
+              <div className="flex justify-center items-center gap-2 mt-4">
+                <button
+                  onClick={() => setSeasonPage((p) => p - 1)}
+                  disabled={seasonPage === 1}
+                  className="px-4 py-1.5 rounded-full text-sm border transition
+                    hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
+                    disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  ← 이전
+                </button>
+
+                <span>
+                  {seasonPage} / {Math.ceil(tv.seasons.length / ITEMS_PER_PAGE)}
+                </span>
+
+                <button
+                  onClick={() => setSeasonPage((p) => p + 1)}
+                  disabled={seasonPage === Math.ceil(tv.seasons.length / ITEMS_PER_PAGE)}
+                  className="px-4 py-1.5 rounded-full text-sm border transition
+                    hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
+                    disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  다음 →
+                </button>
+              </div>
+            </div>
+          )}
+
+          {showSimilar && (
+            <div className='mt-8'>
+              <h2 className="text-xl font-bold mb-6">📺 비슷한 작품</h2>
+
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, 160px)',
+                gap: '24px',
+                justifyContent: 'center',
+              }}>
+                {pagedSimilar.map((item) => (
+                  <MovieCard
+                    key={item.id}
+                    title={item.name}
+                    year={item.first_air_date?.slice(0, 4)}
+                    rating={item.vote_average?.toFixed(1)}
+                    poster={item.poster_path}
+                    onClick={() => router.push(`/detail/tv/${item.id}`)}
+                  />
+                ))}
+              </div>
+
+              <div className="flex justify-center items-center gap-2 mt-4">
+                <button
+                  onClick={() => setSimilarPage((p) => p - 1)}
+                  disabled={similarPage === 1}
+                  className="px-4 py-1.5 rounded-full text-sm border transition
+                    hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
+                    disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  ← 이전
+                </button>
+
+                <span>
+                  {similarPage} / {Math.ceil(similar.length / ITEMS_PER_PAGE)}
+                </span>
+
+                <button
+                  onClick={() => setSimilarPage((p) => p + 1)}
+                  disabled={similarPage === Math.ceil(similar.length / ITEMS_PER_PAGE)}
+                  className="px-4 py-1.5 rounded-full text-sm border transition
+                    hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
+                    disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  다음 →
+                </button>
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     </div>

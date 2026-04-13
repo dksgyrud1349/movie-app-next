@@ -13,7 +13,7 @@ export default function Detail({ movie }) {
   const [activeTab, setActiveTab] = useState('series'); // 'series' | 'similar'
   const [seriesPage, setSeriesPage] = useState(1);
   const [similarPage, setSimilarPage] = useState(1);
-  const ITEMS_PER_PAGE = 8;
+  const ITEMS_PER_PAGE = 6;
 
   const showTabs = collection && similar.length > 0;
   const showSeries = showTabs ? activeTab === 'series' : !!collection;
@@ -30,6 +30,15 @@ export default function Detail({ movie }) {
   );
 
   useEffect(() => {
+    // 상태 초기화 추가
+    setCollection(null);
+    setSimilar([]);
+    setTrailers([]);
+    setSelectedTrailer(0);
+    setSeriesPage(1);
+    setSimilarPage(1);
+    setActiveTab('series');
+
     const liked = JSON.parse(localStorage.getItem('likedMovies') || '[]');
     const likedMovie = liked.filter((m) => m.id === movie.id);
     setIsLiked(likedMovie.length > 0);
@@ -199,6 +208,7 @@ export default function Detail({ movie }) {
               </div>
             </div>
           )}
+          
 
           {/* 시리즈 정보 */}
           {(collection && similar.length > 0 ? activeTab === 'series' : collection) && (
@@ -210,7 +220,7 @@ export default function Detail({ movie }) {
                 gap: '24px',
                 justifyContent: 'center',
               }}>
-                {collection.parts.map((part) => (
+                {pagedSeries.map((part) => (
                   <MovieCard
                     key={part.id}
                     title={part.title}
@@ -220,6 +230,29 @@ export default function Detail({ movie }) {
                     onClick={() => router.push(`/detail/movie/${part.id}`)}
                   />
                 ))}
+              </div>
+              <div className="flex justify-center items-center gap-2 mt-4">
+                <button
+                  onClick={() => setSeriesPage((p) => p - 1)}
+                  disabled={seriesPage === 1}
+                  className="px-4 py-1.5 rounded-full text-sm border transition
+                    hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
+                    disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  ← 이전
+                </button>
+                <span className="text-sm">
+                  {seriesPage} / {Math.ceil(collection.parts.length / ITEMS_PER_PAGE)}
+                </span>
+                <button
+                  onClick={() => setSeriesPage((p) => p + 1)}
+                  disabled={seriesPage === Math.ceil(collection.parts.length / ITEMS_PER_PAGE)}
+                  className="px-4 py-1.5 rounded-full text-sm border transition
+                    hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
+                    disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  다음 →
+                </button>
               </div>
             </div>
           )}
@@ -234,16 +267,39 @@ export default function Detail({ movie }) {
                 gap: '24px',
                 justifyContent: 'center',
               }}>
-                {similar.map((item) => (
+                {pagedSimilar.map((item) => (
                   <MovieCard
                     key={item.id}
                     title={item.title}
                     year={item.release_date?.slice(0, 4)}
                     rating={item.vote_average?.toFixed(1)}
-                    poster={item.poster_path}
+                    poster={item.poster_path ? item.poster_path : "/no-image.jpg"}
                     onClick={() => router.push(`/detail/movie/${item.id}`)}
                   />
                 ))}
+              </div>
+              <div className="flex justify-center items-center gap-2 mt-4">
+                <button
+                  onClick={() => setSimilarPage((p) => p - 1)}
+                  disabled={similarPage === 1}
+                  className="px-4 py-1.5 rounded-full text-sm border transition
+                    hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
+                    disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  ← 이전
+                </button>
+                <span className="text-sm">
+                  {similarPage} / {Math.ceil(similar.length / ITEMS_PER_PAGE)}
+                </span>
+                <button
+                  onClick={() => setSimilarPage((p) => p + 1)}
+                  disabled={similarPage === Math.ceil(similar.length / ITEMS_PER_PAGE)}
+                  className="px-4 py-1.5 rounded-full text-sm border transition
+                    hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
+                    disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  다음 →
+                </button>
               </div>
             </div>
           )}

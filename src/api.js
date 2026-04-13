@@ -65,7 +65,6 @@ export async function fetchMovieVideos(id) {
 export async function fetchSimilarMovie(id) {
   const res = await fetch(`${BASE_URL}/movie/${id}/similar?language=ko-KR`, options);
   const data = await res.json();
-  console.log(data.results);
   return data.results;
 }
 
