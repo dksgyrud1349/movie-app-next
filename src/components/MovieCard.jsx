@@ -13,7 +13,7 @@ function MovieCard({ title, icon, year, rating, poster, onClick }) {
       style={{ width: '160px' }}
     >
       <img
-        src={`https://image.tmdb.org/t/p/w200${poster}`}
+        src={poster ? `https://image.tmdb.org/t/p/w200${poster}` : "/no-image.jpg"}
         alt={title}
         style={{ width: '100%', height: '240px', objectFit: 'cover' }}
       />

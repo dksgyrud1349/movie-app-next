@@ -64,7 +64,7 @@ export default function Detail({ movie }) {
           src={
             movie.poster_path
               ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
-              : null
+              : "/no-image.jpg"
           }
           alt={movie.title}
           className="

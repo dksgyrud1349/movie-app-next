@@ -10,6 +10,7 @@ export default function Home({ initialMovies }) {
   const [movies, setMovies] = useState(initialMovies);
   const [genres, setGenres] = useState([]);
   const [inputSearch, setInputSearch] = useState('');
+  const [totalPages, setTotalPages] = useState(1);
   const router = useRouter();
 
   const {
@@ -53,21 +54,19 @@ export default function Home({ initialMovies }) {
 
       let allMovies = [];
       for (let i = 1; i <= currentPage; i++) {
-        let data = [];
+        let results, tp;
         if (search.trim() !== '') {
-          data = mode === 'movie'
-            ? await searchMovies(search, i, genreId)
-            : await searchTV(search, i, genreId);
+          ({results, totalPages: tp} = mode === 'movie' ? await searchMovies(search, i, genreId) : await searchTV(search, i, genreId));
         } else if (genreId) {
-          data = mode === 'movie'
-            ? await fetchMovieGenre(genreId, i)
-            : await fetchTVGenre(genreId, i);
+          ({results, totalPages: tp} = mode === 'movie' ? await fetchMovieGenre(genreId, i) : await fetchTVGenre(genreId, i));
         } else {
-          data = mode === 'movie'
-            ? await fetchPopularMovies(i)
-            : await fetchPopularTV(i);
+          ({results, totalPages: tp} = mode === 'movie' ? await fetchPopularMovies(i) : await fetchPopularTV(i));
         }
-        allMovies = [...allMovies, ...data];
+
+        if(i===currentPage) {
+          setTotalPages(tp);  // 마지막 페이지만 저장
+        }
+        allMovies = [...allMovies, ...results];
       }
       setMovies(allMovies);
 
@@ -185,21 +184,23 @@ export default function Home({ initialMovies }) {
       />
 
       {/* 더보기 버튼 */}
-      <div className="flex justify-center mt-8">
-        <button
-          onClick={handleMore}
-          className="px-8 py-3 rounded-full border text-sm transition hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600"
-        >
-          더보기
-        </button>
-      </div>
+      {Number(page) < totalPages && (
+        <div className="flex justify-center mt-8">
+          <button
+            onClick={handleMore}
+            className="px-8 py-3 rounded-full border text-sm transition hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600"
+          >
+            더보기
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
 export async function getServerSideProps() {
-  const movies = await fetchPopularMovies();
+  const {results} = await fetchPopularMovies();
   return {
-    props: { initialMovies: movies },
+    props: { initialMovies: results },
   };
 }
