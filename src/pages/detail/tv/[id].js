@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import MovieCard from '@/components/MovieCard';
 import { fetchTVDetail, fetchTVVideos, fetchSimilarTV } from '../../../api';
+import Head from 'next/head';
 
 export default function TVDetail({ tv }) {
   const router = useRouter();
@@ -70,6 +71,12 @@ export default function TVDetail({ tv }) {
 
   return (
     <div className="max-w-[1400px] mx-auto px-4 py-6">
+      <Head>
+        <title>📺 {tv.name} - 드라마 / 영화 검색 앱</title>
+        <meta name="description" content={tv.overview} />
+        <meta property="og:title" content={tv.name} />
+        <meta property="og:image" content={tv.poster_path ? `https://image.tmdb.org/t/p/w500${tv.poster_path}` : "/no-image.jpg"} />
+      </Head>
       {/* 🔙 뒤로가기 */}
       <button 
         onClick={() => router.back()}
@@ -196,33 +203,33 @@ export default function TVDetail({ tv }) {
                   />
                 ))}
               </div>
+              {tv.seasons.length > ITEMS_PER_PAGE && (
+                <div className="flex justify-center items-center gap-2 mt-4">
+                  <button
+                    onClick={() => setSeasonPage((p) => p - 1)}
+                    disabled={seasonPage === 1}
+                    className="px-4 py-1.5 rounded-full text-sm border transition
+                      hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
+                      disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    ← 이전
+                  </button>
 
-              {/* 페이지 */}
-              <div className="flex justify-center items-center gap-2 mt-4">
-                <button
-                  onClick={() => setSeasonPage((p) => p - 1)}
-                  disabled={seasonPage === 1}
-                  className="px-4 py-1.5 rounded-full text-sm border transition
-                    hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
-                    disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                  ← 이전
-                </button>
+                  <span>
+                    {seasonPage} / {Math.ceil(tv.seasons.length / ITEMS_PER_PAGE)}
+                  </span>
 
-                <span>
-                  {seasonPage} / {Math.ceil(tv.seasons.length / ITEMS_PER_PAGE)}
-                </span>
-
-                <button
-                  onClick={() => setSeasonPage((p) => p + 1)}
-                  disabled={seasonPage === Math.ceil(tv.seasons.length / ITEMS_PER_PAGE)}
-                  className="px-4 py-1.5 rounded-full text-sm border transition
-                    hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
-                    disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                  다음 →
-                </button>
-              </div>
+                  <button
+                    onClick={() => setSeasonPage((p) => p + 1)}
+                    disabled={seasonPage === Math.ceil(tv.seasons.length / ITEMS_PER_PAGE)}
+                    className="px-4 py-1.5 rounded-full text-sm border transition
+                      hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
+                      disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    다음 →
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
@@ -247,32 +254,33 @@ export default function TVDetail({ tv }) {
                   />
                 ))}
               </div>
+              {similar.length > ITEMS_PER_PAGE && (
+                <div className="flex justify-center items-center gap-2 mt-4">
+                  <button
+                    onClick={() => setSimilarPage((p) => p - 1)}
+                    disabled={similarPage === 1}
+                    className="px-4 py-1.5 rounded-full text-sm border transition
+                      hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
+                      disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    ← 이전
+                  </button>
 
-              <div className="flex justify-center items-center gap-2 mt-4">
-                <button
-                  onClick={() => setSimilarPage((p) => p - 1)}
-                  disabled={similarPage === 1}
-                  className="px-4 py-1.5 rounded-full text-sm border transition
-                    hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
-                    disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                  ← 이전
-                </button>
+                  <span>
+                    {similarPage} / {Math.ceil(similar.length / ITEMS_PER_PAGE)}
+                  </span>
 
-                <span>
-                  {similarPage} / {Math.ceil(similar.length / ITEMS_PER_PAGE)}
-                </span>
-
-                <button
-                  onClick={() => setSimilarPage((p) => p + 1)}
-                  disabled={similarPage === Math.ceil(similar.length / ITEMS_PER_PAGE)}
-                  className="px-4 py-1.5 rounded-full text-sm border transition
-                    hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
-                    disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                  다음 →
-                </button>
-              </div>
+                  <button
+                    onClick={() => setSimilarPage((p) => p + 1)}
+                    disabled={similarPage === Math.ceil(similar.length / ITEMS_PER_PAGE)}
+                    className="px-4 py-1.5 rounded-full text-sm border transition
+                      hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
+                      disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    다음 →
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

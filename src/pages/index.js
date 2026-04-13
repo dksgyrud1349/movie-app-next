@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import MovieList from '../components/MovieList';
 import SkeletonCard from '@/components/SkeletonCard';
+import Head from 'next/head';
 import {
   fetchPopularMovies, searchMovies, fetchMovieGenres, fetchMovieGenre,
   fetchPopularTV, searchTV, fetchTVGenres, fetchTVGenre
@@ -51,7 +52,7 @@ export default function Home({ initialMovies }) {
         localStorage.setItem('searchHistory', JSON.stringify(newSearchHistory));
         updateURL({ search: inputSearch, genre: '', page: '1' });
       }
-    }, 5000);
+    }, 1500);
     return () => clearTimeout(timer);
   }, [inputSearch]);
 
@@ -134,6 +135,12 @@ export default function Home({ initialMovies }) {
 
   return (
     <div className="max-w-[1400px] mx-auto px-4 py-6">
+      <Head>
+        <title>🎬 드라마 / 영화 검색 앱</title>
+        <meta name="description" content="TMDB API를 활용한 영화 및 드라마 검색 서비스" />
+        <meta property="og:title" content="🎬 드라마 / 영화 검색 앱" />
+        {/* <meta property="og:image" content="포스터 이미지 URL" /> */}
+      </Head>
       {/* ❤️ 찜 */}
       <div className="flex justify-end">
         <button

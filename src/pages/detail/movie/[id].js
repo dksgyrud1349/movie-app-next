@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import MovieCard from '../../../components/MovieCard';
 import { fetchMovieDetail, fetchCollection, fetchMovieVideos, fetchSimilarMovie } from '../../../api';
+import Head from 'next/head';
 
 export default function Detail({ movie }) {
   const router = useRouter();
@@ -81,7 +82,12 @@ export default function Detail({ movie }) {
 
   return (
     <div className="max-w-[1400px] mx-auto px-4 py-6">
-
+      <Head>
+        <title>🎬 {movie.title} - 드라마 / 영화 검색 앱</title>
+        <meta name="description" content={movie.overview} />
+        <meta property="og:title" content={movie.title} />
+        <meta property="og:image" content={movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : "/no-image.jpg"} />
+      </Head>
       {/* 🔙 뒤로가기 */}
       <button
         onClick={() => router.back()}
@@ -231,29 +237,31 @@ export default function Detail({ movie }) {
                   />
                 ))}
               </div>
-              <div className="flex justify-center items-center gap-2 mt-4">
-                <button
-                  onClick={() => setSeriesPage((p) => p - 1)}
-                  disabled={seriesPage === 1}
-                  className="px-4 py-1.5 rounded-full text-sm border transition
-                    hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
-                    disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                  ← 이전
-                </button>
-                <span className="text-sm">
-                  {seriesPage} / {Math.ceil(collection.parts.length / ITEMS_PER_PAGE)}
-                </span>
-                <button
-                  onClick={() => setSeriesPage((p) => p + 1)}
-                  disabled={seriesPage === Math.ceil(collection.parts.length / ITEMS_PER_PAGE)}
-                  className="px-4 py-1.5 rounded-full text-sm border transition
-                    hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
-                    disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                  다음 →
-                </button>
-              </div>
+              {collection.parts.length > ITEMS_PER_PAGE && (
+                <div className="flex justify-center items-center gap-2 mt-4">
+                  <button
+                    onClick={() => setSeriesPage((p) => p - 1)}
+                    disabled={seriesPage === 1}
+                    className="px-4 py-1.5 rounded-full text-sm border transition
+                      hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
+                      disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    ← 이전
+                  </button>
+                  <span className="text-sm">
+                    {seriesPage} / {Math.ceil(collection.parts.length / ITEMS_PER_PAGE)}
+                  </span>
+                  <button
+                    onClick={() => setSeriesPage((p) => p + 1)}
+                    disabled={seriesPage === Math.ceil(collection.parts.length / ITEMS_PER_PAGE)}
+                    className="px-4 py-1.5 rounded-full text-sm border transition
+                      hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
+                      disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    다음 →
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
@@ -278,29 +286,31 @@ export default function Detail({ movie }) {
                   />
                 ))}
               </div>
-              <div className="flex justify-center items-center gap-2 mt-4">
-                <button
-                  onClick={() => setSimilarPage((p) => p - 1)}
-                  disabled={similarPage === 1}
-                  className="px-4 py-1.5 rounded-full text-sm border transition
-                    hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
-                    disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                  ← 이전
-                </button>
-                <span className="text-sm">
-                  {similarPage} / {Math.ceil(similar.length / ITEMS_PER_PAGE)}
-                </span>
-                <button
-                  onClick={() => setSimilarPage((p) => p + 1)}
-                  disabled={similarPage === Math.ceil(similar.length / ITEMS_PER_PAGE)}
-                  className="px-4 py-1.5 rounded-full text-sm border transition
-                    hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
-                    disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                  다음 →
-                </button>
-              </div>
+              {similar.length > 0 && (
+                <div className="flex justify-center items-center gap-2 mt-4">
+                  <button
+                    onClick={() => setSimilarPage((p) => p - 1)}
+                    disabled={similarPage === 1}
+                    className="px-4 py-1.5 rounded-full text-sm border transition
+                      hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
+                      disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    ← 이전
+                  </button>
+                  <span className="text-sm">
+                    {similarPage} / {Math.ceil(similar.length / ITEMS_PER_PAGE)}
+                  </span>
+                  <button
+                    onClick={() => setSimilarPage((p) => p + 1)}
+                    disabled={similarPage === Math.ceil(similar.length / ITEMS_PER_PAGE)}
+                    className="px-4 py-1.5 rounded-full text-sm border transition
+                      hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
+                      disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    다음 →
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
