@@ -17,11 +17,8 @@ export async function fetchPopularMovies(page = 1) {
 }
 
 // 영화 검색
-export async function searchMovies(query, page=1, genreId='') {
-  const url = genreId
-    ? `${BASE_URL}/discover/movie?with_genres=${genreId}&query=${query}&language=ko-KR&page=${page}`
-    : `${BASE_URL}/search/movie?query=${query}&language=ko-KR&page=${page}`;
-  const res = await fetch(url, options);
+export async function searchMovies(query, page = 1) {
+  const res = await fetch(`${BASE_URL}/search/movie?query=${query}&language=ko-KR&page=${page}`, options);
   const data = await res.json();
   return { results: data.results, totalPages: data.total_pages };
 }
@@ -77,11 +74,8 @@ export async function fetchPopularTV(page=1) {
 }
 
 // 드라마 검색
-export async function searchTV(query, page=1, genreId='') {
-  const url = genreId
-    ? `${BASE_URL}/discover/tv?with_genres=${genreId}&query=${query}&language=ko-KR&page=${page}`
-    : `${BASE_URL}/search/tv?query=${query}&language=ko-KR&page=${page}`;
-  const res = await fetch(url, options);
+export async function searchTV(query, page = 1, genreId = '') {
+  const res = await fetch(`${BASE_URL}/search/tv?query=${query}&language=ko-KR&page=${page}`, options);
   const data = await res.json();
   return { results: data.results, totalPages: data.total_pages };
 }

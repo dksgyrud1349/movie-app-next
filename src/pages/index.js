@@ -20,11 +20,10 @@ export default function Home({ initialMovies }) {
     page = '1',
   } = router.query;
 
-  // 디바운스 - 0.5초 후 URL 업데이트
   useEffect(() => {
     const timer = setTimeout(() => {
       if (router.isReady) {
-        updateURL({ search: inputSearch, page: '1' });
+        updateURL({ search: inputSearch, genre: '', page: '1' }); // ← genre: '' 추가
       }
     }, 500);
     return () => clearTimeout(timer);
@@ -100,6 +99,10 @@ export default function Home({ initialMovies }) {
     updateURL({ genre: genreId, search: '', page: '1' });
   };
   const handleMore = () => updateURL({ page: String(Number(page) + 1) });
+
+  const handleSearch = (e) => {
+    setInputSearch(e.target.value);
+  };
 
   return (
     <div className="max-w-[900px] mx-auto px-4 py-6">
