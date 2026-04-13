@@ -1,40 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# 🎬 드라마 / 영화 검색 앱
 
-## Getting Started
+TMDB API를 활용한 영화 및 드라마 검색 서비스입니다.
 
-First, run the development server:
+## 배포 링크
+🔗 [https://movie-app-next-hdkd.vercel.app](https://movie-app-next-hdkd.vercel.app)
 
-```bash
+## 스크린샷
+(스크린샷 추가 예정)
+
+## 기술 스택
+- Next.js (Pages Router)
+- React
+- Tailwind CSS
+- TMDB API
+- Vercel (배포)
+
+## 주요 기능
+- 🎬 영화 / 📺 드라마 구분 검색
+- 장르별 필터링
+- 실시간 검색 (디바운스 적용)
+- 영화/드라마 상세 정보 조회
+- 트레일러 탭 UI
+- 영화 시리즈(컬렉션) 정보
+- 드라마 시즌 정보
+- 찜하기 기능 (영화/드라마 분리 저장)
+- 다크모드
+- 더보기 버튼 페이징 처리
+- 뒤로가기 시 검색/장르/페이지/스크롤 위치 유지
+
+## 실행 방법
+\```bash
+git clone https://github.com/dksgyrud1349/movie-app-next.git
+cd movie-app-next
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+\```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 환경 변수 설정
+\```
+NEXT_PUBLIC_TMDB_TOKEN=your_tmdb_token
+\```
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
-
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+## 구현하면서 배운 것
+- Next.js SSR(getServerSideProps)과 CSR의 차이점 및 적용 방법
+- URL을 단일 진실 공급원으로 활용한 상태 관리
+- 디바운스를 활용한 검색 최적화
+- TMDB API 연동 및 비동기 데이터 처리
+- localStorage를 활용한 찜 기능 구현

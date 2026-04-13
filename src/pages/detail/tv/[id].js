@@ -1,15 +1,27 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { fetchTVDetail } from '../../../api';
+import { fetchTVDetail, fetchTVVideos } from '../../../api';
 
 export default function TVDetail({ tv }) {
   const router = useRouter();
   const [isLiked, setIsLiked] = useState(false);
+  const [trailers, setTrailers] = useState([]);
+  const [selectedTrailer, setSelectedTrailer] = useState(0);
 
   useEffect(() => {
     const liked = JSON.parse(localStorage.getItem('likedTV') || '[]');
     const likedTV = liked.filter((m) => m.id === tv.id);
     setIsLiked(likedTV.length > 0);
+
+    const load = async () => {
+      // TODO: fetchTVVideos(tv.id) 호출
+      // type === 'Trailer' && site === 'YouTube' 필터링 없으면 type === 'Teaser' 로 대체. setTrailer으로 저장
+      const trailerData = await fetchTVVideos(tv.id);
+      const trailerList = trailerData.filter((v) => v.type === 'Trailer' && v.site === 'YouTube');
+      const teaserList = trailerData.filter((v) => v.type === 'Teaser' && v.site === 'YouTube');
+      setTrailers(trailerList.length > 0 ? trailerList : teaserList);
+    };
+    load();
   }, [tv.id]);
 
   const handleLike = () => {
@@ -69,6 +81,39 @@ export default function TVDetail({ tv }) {
           <p className="mt-4 leading-relaxed text-sm md:text-base">
             {/* TODO: 줄거리 */ tv.overview}
           </p>
+          {/* 🎬 트레일러 */}
+          {trailers.length > 0 && (
+            <div className="mt-8">
+              <h2 className="text-lg font-bold mb-4">🎬 트레일러</h2>
+
+              {/* 탭 버튼 */}
+              <div className="flex gap-2 mb-4 flex-wrap">
+                {trailers.map((t, index) => (
+                  <button
+                    key={t.key}
+                    onClick={() => setSelectedTrailer(index)}
+                    className={`px-4 py-1.5 rounded-full text-sm border transition
+                      ${selectedTrailer === index
+                        ? 'bg-black text-white dark:bg-white dark:text-black'
+                        : 'hover:bg-gray-100 dark:hover:bg-gray-500'}
+                      dark:border-gray-600`}
+                  >
+                    {t.name}
+                  </button>
+                ))}
+              </div>
+
+              {/* 영상 */}
+              <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                <iframe
+                  src={`https://www.youtube.com/embed/${trailers[selectedTrailer]?.key}`}
+                  title={trailers[selectedTrailer]?.name}
+                  allowFullScreen
+                  className="absolute top-0 left-0 w-full h-full rounded-xl"
+                />
+              </div>
+            </div>
+          )}
           {/* 🎬 시즌 정보 */}
           {tv.seasons && tv.seasons.length > 0 && (
             <div className="mt-12">
