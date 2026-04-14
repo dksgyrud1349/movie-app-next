@@ -104,7 +104,6 @@ export default function TVDetail({ tv }) {
     const translateReview = await translateText(review.content);
     // reviews.map으로 특정 리뷰만 교체
     setReviews(reviews.map((r) => r.id === review.id ? {...r, content: translateReview} : r));
-    console.log(reviews);
     setTranslatingId(null);
   };
 
