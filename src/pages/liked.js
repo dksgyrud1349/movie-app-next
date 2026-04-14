@@ -21,7 +21,7 @@ export default function Liked() {
       <Head>
         <title>📺 TV, 드라마 / 🎬 영화 검색 앱</title>
         <meta name="description" content="TMDB API를 활용한 영화 및 드라마 검색 서비스" />
-        <meta property="og:title" content="🎬 드라마 / 영화 검색 앱" />
+        <meta property="og:title" content="📺 TV, 드라마 / 🎬 영화 검색 앱" />
         {/* <meta property="og:image" content="포스터 이미지 URL" /> */}
       </Head>
       {/* 🔙 뒤로가기 */}

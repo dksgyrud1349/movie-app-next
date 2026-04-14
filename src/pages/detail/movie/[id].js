@@ -252,6 +252,7 @@ export default function Detail({ movie }) {
                 {pagedSeries.map((part) => (
                   <MovieCard
                     key={part.id}
+                    icon={'🎬'}
                     title={part.title}
                     year={part.release_date?.slice(0, 4)}
                     rating={part.vote_average?.toFixed(1)}
@@ -297,6 +298,7 @@ export default function Detail({ movie }) {
                 {pagedSimilar.map((item) => (
                   <MovieCard
                     key={item.id}
+                    icon={'🎬'}
                     title={item.title}
                     year={item.release_date?.slice(0, 4)}
                     rating={item.vote_average?.toFixed(1)}

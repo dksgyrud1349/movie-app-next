@@ -287,6 +287,7 @@ export default function TVDetail({ tv }) {
                 {pagedSimilar.map((item) => (
                   <MovieCard
                     key={item.id}
+                    icon={'📺'}
                     title={item.name}
                     year={item.first_air_date?.slice(0, 4)}
                     rating={item.vote_average?.toFixed(1)}
