@@ -17,13 +17,12 @@ export default function App({ Component, pageProps }) {
     setIsDark(!isDark);
   };
 
-  if (!mounted) return <Component {...pageProps} />;
-
   return (
-    <div className={`${isDark ? 'dark' : ''} min-h-screen`}
+    <div
+      className={`${mounted && isDark ? 'dark' : ''} min-h-screen`}
       style={{
-        backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
-        color: isDark ? '#ffffff' : '#171717',
+        backgroundColor: mounted && isDark ? '#1a1a1a' : '#ffffff',
+        color: mounted && isDark ? '#ffffff' : '#171717',
       }}
     >
       <div className="max-w-[1400px] mx-auto px-4 pt-4 flex justify-end">
@@ -38,7 +37,7 @@ export default function App({ Component, pageProps }) {
           onClick={toggleDark}
           className="px-3 py-2 text-sm rounded-full border text-black dark:text-white dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
         >
-          {isDark ? '☀️' : '🌙'}
+          {mounted ? (isDark ? '☀️' : '🌙') : '🌙'}
         </button>
       </div>
       <Component {...pageProps} />
