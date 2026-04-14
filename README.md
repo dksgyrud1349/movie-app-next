@@ -10,6 +10,7 @@ TMDB API를 활용한 영화 및 드라마 검색 서비스입니다.
 - React
 - Tailwind CSS
 - TMDB API
+- DeepL API (리뷰 번역)
 - Vercel (배포)
 
 ## 주요 기능
@@ -22,6 +23,7 @@ TMDB API를 활용한 영화 및 드라마 검색 서비스입니다.
 - 영화 시리즈(컬렉션) 정보
 - 드라마 시즌 정보
 - 비슷한 작품 추천
+- 📝 리뷰 조회 및 번역 (DeepL API)
 - 찜하기 기능 (영화/드라마 분리 저장)
 - 다크모드
 - 더보기 버튼 페이징 처리
@@ -41,6 +43,7 @@ npm run dev
 ## 환경 변수 설정
 \```
 NEXT_PUBLIC_TMDB_TOKEN=your_tmdb_token
+DEEPL_KEY=your_deepl_key
 \```
 
 ## 구현하면서 배운 것
@@ -50,5 +53,7 @@ NEXT_PUBLIC_TMDB_TOKEN=your_tmdb_token
 - TMDB API 연동 및 비동기 데이터 처리
 - localStorage를 활용한 찜 기능 및 검색 기록 구현
 - Skeleton UI로 로딩 UX 개선
+- Next.js API Routes를 활용한 서버사이드 번역 처리 (CORS 해결)
+- DeepL API를 활용한 리뷰 번역 기능 구현
 - navigator.clipboard API를 활용한 링크 공유 기능
 - Next.js Head 컴포넌트를 활용한 SEO 최적화
