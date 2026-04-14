@@ -26,7 +26,15 @@ export default function Home({ initialMovies }) {
   } = router.query;
 
   useEffect(() => {
-    setHistory(JSON.parse(localStorage.getItem('searchHistory') || '[]'));
+    const localSearchHistory = (() => {
+          try {
+            return JSON.parse(localStorage.getItem('searchHistory') || '[]')
+          } catch {
+            setHistory([]);
+            localStorage.removeItem('searchHistory');
+          }
+        })();
+    setHistory(localSearchHistory);
   }, []);
 
   useEffect(() => {
@@ -52,7 +60,7 @@ export default function Home({ initialMovies }) {
         localStorage.setItem('searchHistory', JSON.stringify(newSearchHistory));
         updateURL({ search: inputSearch, genre: '', page: '1' });
       }
-    }, 1500);
+    }, 1000);
     return () => clearTimeout(timer);
   }, [inputSearch]);
 
