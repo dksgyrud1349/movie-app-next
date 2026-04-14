@@ -8,6 +8,16 @@ const options = {
   },
 };
 
+export async function translateText(text) {
+  const res = await fetch('/api/translate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text })
+  });
+  const data = await res.json();
+  return data.translated;
+}
+
 // 영화
 // 인기 영화
 export async function fetchPopularMovies(page = 1) {
@@ -65,6 +75,12 @@ export async function fetchSimilarMovie(id) {
   return data.results;
 }
 
+export async function fetchMovieReviews(id) {
+  const res = await fetch(`${BASE_URL}/movie/${id}/reviews`, options);
+  const data = await res.json();
+  return data.results;
+}
+
 // 드라마
 // 인기 드라마
 export async function fetchPopularTV(page=1) {
@@ -80,7 +96,7 @@ export async function searchTV(query, page = 1, genreId = '') {
   return { results: data.results, totalPages: data.total_pages };
 }
 
-// 영화 상세 정보
+// 드라마 상세 정보
 export async function fetchTVDetail(id ) {
   const res = await fetch(`${BASE_URL}/tv/${id}?language=ko-KR`, options);
   const data = await res.json();
@@ -111,6 +127,12 @@ export async function fetchTVVideos(id) {
 // 드라마 비슷한 작품 추천
 export async function fetchSimilarTV(id) {
   const res = await fetch(`${BASE_URL}/tv/${id}/similar?language=ko-KR`, options);
+  const data = await res.json();
+  return data.results;
+}
+
+export async function fetchTVReviews(id) {
+  const res = await fetch(`${BASE_URL}/tv/${id}/reviews`, options);
   const data = await res.json();
   return data.results;
 }

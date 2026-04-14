@@ -28,8 +28,7 @@ export default function App({ Component, pageProps }) {
       <div className="max-w-[1400px] mx-auto px-4 pt-4 flex justify-end">
         <button
           onClick={() => router.push('/')}
-          className="px-3 py-2 mr-4 text-sm rounded-full border
-            dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+          className="px-3 py-2 mr-4 text-sm rounded-full border dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
         >
           🏠
         </button>

@@ -326,8 +326,7 @@ export default function Home({ initialMovies }) {
 }
 
 export async function getServerSideProps() {
-  const {results} = await fetchPopularMovies();
   return {
-    props: { initialMovies: results },
+    props: { initialMovies: [] },
   };
 }

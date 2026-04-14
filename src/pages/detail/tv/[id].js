@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import MovieCard from '@/components/MovieCard';
-import { fetchTVDetail, fetchTVVideos, fetchSimilarTV } from '../../../api';
+import { fetchTVDetail, fetchTVVideos, fetchSimilarTV, fetchMovieReviews, translateText, fetchTVReviews } from '../../../api';
 import Head from 'next/head';
 
 export default function TVDetail({ tv }) {
@@ -13,8 +13,13 @@ export default function TVDetail({ tv }) {
   const [activeTab, setActiveTab] = useState('season'); // 'season' | 'similar'
   const [seasonPage, setSeasonPage] = useState(1);
   const [similarPage, setSimilarPage] = useState(1);
+  const [reviewPage, setReviewPage] = useState(1);
   const [copied, setCopied] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [translatingId, setTranslatingId] = useState(null); // 번역 중인 리뷰 id
+  const [expandedReviews, setExpandedReviews] = useState([]);
   const ITEMS_PER_PAGE = 6;
+  const REVIEW_PER_PAGE = 2;
 
   const showTabs = tv.seasons && tv.seasons.length > 0 && similar.length > 0;
   const showSeason = showTabs ? activeTab === 'season' : tv.seasons?.length > 0;
@@ -30,6 +35,11 @@ export default function TVDetail({ tv }) {
     similarPage * ITEMS_PER_PAGE
   );
 
+  const pagedReviews = reviews.slice(
+    (reviewPage - 1) * REVIEW_PER_PAGE,
+    reviewPage * REVIEW_PER_PAGE
+  );
+
   useEffect(() => {
     // 상태 초기화 추가
     setSimilar([]);
@@ -37,6 +47,7 @@ export default function TVDetail({ tv }) {
     setSelectedTrailer(0);
     setSeasonPage(1);
     setSimilarPage(1);
+    setReviewPage(1);
     setActiveTab('season');
 
     const liked = JSON.parse(localStorage.getItem('likedTV') || '[]');
@@ -54,6 +65,10 @@ export default function TVDetail({ tv }) {
       // 비슷한 작품
       const similarDataList = await fetchSimilarTV(tv.id);
       setSimilar(similarDataList);
+
+      // 리뷰
+      const reviewDataList = await fetchTVReviews(tv.id);
+      setReviews(reviewDataList);
     };
     load();
   }, [tv.id]);
@@ -79,6 +94,24 @@ export default function TVDetail({ tv }) {
     setTimeout(() => {
       setCopied(false);
     }, 2000);
+  };
+
+  const handleTranslate = async (review) => {
+    setTranslatingId(review.id);
+    // TODO: translateText(review.content) 호출
+    // 번역된 텍스트로 해당 리뷰만 업데이트
+    // reviews.map으로 해당 id면 교체, 아니면 그대로
+    const translateReview = await translateText(review.content);
+    // reviews.map으로 특정 리뷰만 교체
+    setReviews(reviews.map((r) => r.id === review.id ? {...r, content: translateReview} : r));
+    console.log(reviews);
+    setTranslatingId(null);
+  };
+
+  const handleExpand = (id) => {
+    setExpandedReviews((prev) =>
+      prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]
+    );
   };
 
   return (
@@ -304,6 +337,75 @@ export default function TVDetail({ tv }) {
             </div>
           )}
 
+          {/* 📝 리뷰 */}
+          {reviews.length > 0 && (
+            <div className="mt-12">
+              <h2 className="text-xl font-bold mb-6">📝 리뷰</h2>
+              <div className="flex flex-col gap-4">
+                {pagedReviews.map((review) => (
+                  <div
+                    key={review.id}
+                    className="border rounded-xl p-4 dark:border-gray-600"
+                  >
+                    {/* 헤더 */}
+                    <div className={`flex justify-between items-start 
+                      ${review.author_details?.rating ? '' : 'mb-3'}`}>
+                      <p className="font-bold text-sm">{review.author}</p>
+                      <div className="flex items-center gap-2 flex-wrap justify-end">
+                        <p className="text-xs text-gray-400">작성일: {review.created_at?.slice(0, 10)}</p>
+                        <p className="text-xs text-gray-400">수정일: {review.updated_at?.slice(0, 10)}</p>
+                        <button
+                          onClick={() => handleTranslate(review)}
+                          disabled={translatingId === review.id}
+                          className="px-3 py-1 text-xs rounded-full border transition hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                          {translatingId === review.id ? '번역 중...' : '🌐 번역'}
+                        </button>
+                      </div>
+                    </div>
+                    {review.author_details?.rating && (
+                      <span className="text-yellow-500 text-xs">⭐ {review.author_details.rating}</span>
+                    )}
+                    {/* 리뷰 내용 */}
+                    <p className={`text-sm leading-relaxed
+                      ${expandedReviews.includes(review.id) ? '' : 'line-clamp-4'}`}>
+                      {review.content}
+                    </p>
+
+                    <button
+                      onClick={() => handleExpand(review.id)}
+                      className="text-xs mt-1 transition"
+                    >
+                      {expandedReviews.includes(review.id) ? '접기 ▲' : '더보기 ▼'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* 페이징 버튼 */}
+              {reviews.length > REVIEW_PER_PAGE && (
+                <div className="flex justify-center items-center gap-2 mt-4">
+                  <button
+                    onClick={() => setReviewPage((p) => p - 1)}
+                    disabled={reviewPage === 1}
+                    className="px-4 py-1.5 rounded-full text-sm border transition hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    ← 이전
+                  </button>
+                  <span className="text-sm">
+                    {reviewPage} / {Math.ceil(reviews.length / REVIEW_PER_PAGE)}
+                  </span>
+                  <button
+                    onClick={() => setReviewPage((p) => p + 1)}
+                    disabled={reviewPage === Math.ceil(reviews.length / REVIEW_PER_PAGE)}
+                    className="px-4 py-1.5 rounded-full text-sm border transition hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    다음 →
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
