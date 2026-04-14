@@ -164,8 +164,7 @@ export default function Home({ initialMovies }) {
         >
           ❤️ 찜 목록
         </button>
-        <button onClick={handleShare} className={`px-6 py-2 rounded-full text-sm transition
-          border hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600`}>
+        <button onClick={handleShare} className="px-4 py-2 border rounded-xl text-sm hover:shadow transition dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-500">
           {copied ? '✅ 복사됨' : '🔗 링크 복사'}
         </button>
       </div>
