@@ -202,12 +202,7 @@ export default function Detail({ movie }) {
                   <button
                     key={t.key}
                     onClick={() => setSelectedTrailer(index)}
-                    className={`px-4 py-1.5 rounded-full text-sm border transition
-                      ${selectedTrailer === index
-                        ? 'bg-black text-white dark:bg-white dark:text-black'
-                        : 'hover:bg-gray-100 dark:hover:bg-gray-500'}
-                      dark:border-gray-600`}
-                  >
+                    className={`px-4 py-1.5 rounded-full text-sm border transition hover:bg-gray-100 dark:hover:bg-gray-500 ${selectedTrailer === index ? 'bg-blue-700 text-white' : ''} dark:border-gray-600`} >
                     {t.name}
                   </button>
                 ))}
@@ -231,22 +226,12 @@ export default function Detail({ movie }) {
               <div className="flex gap-2 mt-8">
                 <button
                   onClick={() => setActiveTab('series')}
-                  className={`px-4 py-1.5 rounded-full text-sm border transition
-                    ${activeTab === 'series'
-                      ? 'bg-black text-white dark:bg-white dark:text-black'
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-500'}
-                    dark:border-gray-600`}
-                >
+                  className={`px-4 py-1.5 rounded-full text-sm border transition hover:bg-gray-100 dark:hover:bg-gray-500 ${activeTab === 'series' ? 'bg-blue-700 text-white' : ''} dark:border-gray-600`}>
                   🎬 시리즈 정보
                 </button>
                 <button
                   onClick={() => setActiveTab('similar')}
-                  className={`px-4 py-1.5 rounded-full text-sm border transition
-                    ${activeTab === 'similar'
-                      ? 'bg-black text-white dark:bg-white dark:text-black'
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-500'}
-                    dark:border-gray-600`}
-                >
+                  className={`px-4 py-1.5 rounded-full text-sm border transition hover:bg-gray-100 dark:hover:bg-gray-500 ${activeTab === 'similar' ? 'bg-blue-700 text-white' : ''} dark:border-gray-600`}>
                   🎬 비슷한 작품
                 </button>
               </div>

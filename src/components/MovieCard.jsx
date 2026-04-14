@@ -2,14 +2,7 @@ function MovieCard({ title, icon, year, rating, poster, onClick }) {
   return (
     <div
       onClick={onClick}
-      className="
-        movie-card
-        cursor-pointer
-        border rounded-xl overflow-hidden
-        transition-transform duration-300 ease-in-out
-        hover:scale-105 hover:-translate-y-1
-        bg-white
-      "
+      className="movie-card cursor-pointer border rounded-xl overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105 hover:-translate-y-1 bg-white"
       style={{ width: '160px' }}
     >
       <img

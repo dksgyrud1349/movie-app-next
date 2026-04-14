@@ -183,12 +183,7 @@ export default function TVDetail({ tv }) {
                   <button
                     key={t.key}
                     onClick={() => setSelectedTrailer(index)}
-                    className={`px-4 py-1.5 rounded-full text-sm border transition
-                      ${selectedTrailer === index
-                        ? 'bg-black text-white dark:bg-white dark:text-black'
-                        : 'hover:bg-gray-100 dark:hover:bg-gray-500'}
-                      dark:border-gray-600`}
-                  >
+                    className={`px-4 py-1.5 rounded-full text-sm border transition hover:bg-gray-100 dark:hover:bg-gray-500 ${selectedTrailer === index ? 'bg-blue-700 text-white' : ''} dark:border-gray-600`}>
                     {t.name}
                   </button>
                 ))}
@@ -212,22 +207,12 @@ export default function TVDetail({ tv }) {
               <div className="flex gap-2 mt-8">
                 <button
                   onClick={() => setActiveTab('season')}
-                  className={`px-4 py-1.5 rounded-full text-sm border transition
-                    ${activeTab === 'season'
-                      ? 'bg-black text-white dark:bg-white dark:text-black'
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-500'}
-                    dark:border-gray-600`}
-                >
+                  className={`px-4 py-1.5 rounded-full text-sm border transition hover:bg-gray-100 dark:hover:bg-gray-500 ${activeTab === 'season' ? 'bg-blue-700 text-white' : ''} dark:border-gray-600`}>
                   📺 시즌 정보
                 </button>
                 <button
                   onClick={() => setActiveTab('similar')}
-                  className={`px-4 py-1.5 rounded-full text-sm border transition
-                    ${activeTab === 'similar'
-                      ? 'bg-black text-white dark:bg-white dark:text-black'
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-500'}
-                    dark:border-gray-600`}
-                >
+                  className={`px-4 py-1.5 rounded-full text-sm border transition hover:bg-gray-100 dark:hover:bg-gray-500 ${activeTab === 'similar' ? 'bg-blue-700 text-white' : ''} dark:border-gray-600`}>
                   📺 비슷한 작품
                 </button>
               </div>
@@ -245,14 +230,22 @@ export default function TVDetail({ tv }) {
                 justifyContent: 'center',
               }}>
                 {pagedSeason.map((item) => (
-                  <MovieCard
-                    key={item.id}
-                    title={item.name}
-                    year={item.air_date?.slice(0, 4)}
-                    rating={item.vote_average?.toFixed(1)}
-                    poster={item.poster_path}
-                    onClick={() => router.push(`/detail/tv/${tv.id}/season/${item.season_number}`)}
-                  />
+                  <div
+                    className="movie-card cursor-pointer border rounded-xl overflow-hidden transition-transform duration-300 ease-in-out bg-white"
+                    style={{ width: '160px' }}
+                  >
+                    <img
+                      src={item.poster_path ? `https://image.tmdb.org/t/p/w200${item.poster_path}` : "/no-image.jpg"}
+                      alt={item.name}
+                      style={{ width: '100%', height: '240px', objectFit: 'cover' }}
+                    />
+
+                    <div style={{ padding: '10px' }}>
+                      <h3 style={{ fontSize: '14px', fontWeight: 'bold' }}>📺 {item.name}</h3>
+                      <p style={{ fontSize: '12px', color: '#888' }}>📅 {item.air_date?.slice(0, 4)}</p>
+                      <p style={{ fontSize: '12px', color: '#888' }}>⭐ {item.vote_average?.toFixed(1)}</p>
+                    </div>
+                  </div>
                 ))}
               </div>
               {tv.seasons.length > ITEMS_PER_PAGE && (
@@ -260,9 +253,7 @@ export default function TVDetail({ tv }) {
                   <button
                     onClick={() => setSeasonPage((p) => p - 1)}
                     disabled={seasonPage === 1}
-                    className="px-4 py-1.5 rounded-full text-sm border transition
-                      hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
-                      disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="px-4 py-1.5 rounded-full text-sm border transition hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     ← 이전
                   </button>
@@ -274,9 +265,7 @@ export default function TVDetail({ tv }) {
                   <button
                     onClick={() => setSeasonPage((p) => p + 1)}
                     disabled={seasonPage === Math.ceil(tv.seasons.length / ITEMS_PER_PAGE)}
-                    className="px-4 py-1.5 rounded-full text-sm border transition
-                      hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
-                      disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="px-4 py-1.5 rounded-full text-sm border transition hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     다음 →
                   </button>
@@ -311,9 +300,7 @@ export default function TVDetail({ tv }) {
                   <button
                     onClick={() => setSimilarPage((p) => p - 1)}
                     disabled={similarPage === 1}
-                    className="px-4 py-1.5 rounded-full text-sm border transition
-                      hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
-                      disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="px-4 py-1.5 rounded-full text-sm border transition hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     ← 이전
                   </button>
@@ -325,9 +312,7 @@ export default function TVDetail({ tv }) {
                   <button
                     onClick={() => setSimilarPage((p) => p + 1)}
                     disabled={similarPage === Math.ceil(similar.length / ITEMS_PER_PAGE)}
-                    className="px-4 py-1.5 rounded-full text-sm border transition
-                      hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600
-                      disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="px-4 py-1.5 rounded-full text-sm border transition hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     다음 →
                   </button>
