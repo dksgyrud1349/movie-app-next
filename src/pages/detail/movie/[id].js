@@ -302,7 +302,7 @@ export default function Detail({ movie }) {
                     title={item.title}
                     year={item.release_date?.slice(0, 4)}
                     rating={item.vote_average?.toFixed(1)}
-                    poster={item.poster_path ? item.poster_path : "/no-image.jpg"}
+                    poster={item.poster_path}
                     onClick={() => router.push(`/detail/movie/${item.id}`)}
                   />
                 ))}
