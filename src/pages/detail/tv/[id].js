@@ -13,6 +13,7 @@ export default function TVDetail({ tv }) {
   const [activeTab, setActiveTab] = useState('season'); // 'season' | 'similar'
   const [seasonPage, setSeasonPage] = useState(1);
   const [similarPage, setSimilarPage] = useState(1);
+  const [copied, setCopied] = useState(false);
   const ITEMS_PER_PAGE = 6;
 
   const showTabs = tv.seasons && tv.seasons.length > 0 && similar.length > 0;
@@ -69,6 +70,17 @@ export default function TVDetail({ tv }) {
     setIsLiked(!isLiked);
   };
 
+  // 링크 공유 버튼
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    // TODO: 2초 후 copied를 false로 되돌리기
+    // setTimeout 써서 isDark 토글했던 것처럼
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
+  };
+
   return (
     <div className="max-w-[1400px] mx-auto px-4 py-6">
       <Head>
@@ -108,13 +120,17 @@ export default function TVDetail({ tv }) {
           {/* ❤️ 찜 버튼 */}
           <button
             onClick={handleLike}
-            className={`px-6 py-2 rounded-full text-sm transition
+            className={`px-6 py-2 rounded-full text-sm transition mr-4
               ${isLiked
                 ? 'bg-red-500 text-white'
                 : 'border hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600'}
             `}
           >
             {isLiked ? '❤️ 찜 취소' : '🤍 찜하기'}
+          </button>
+          <button onClick={handleShare} className={`px-6 py-2 rounded-full text-sm transition
+            border hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600`}>
+            {copied ? '✅ 복사됨' : '🔗 링크 복사'}
           </button>
 
           {/* 줄거리 */}

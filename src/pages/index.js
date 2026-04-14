@@ -16,6 +16,7 @@ export default function Home({ initialMovies }) {
   const [loading, setLoading] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [history, setHistory] = useState([]);
+  const [copied, setCopied] = useState(false);
   const router = useRouter();
 
   const {
@@ -60,7 +61,7 @@ export default function Home({ initialMovies }) {
         localStorage.setItem('searchHistory', JSON.stringify(newSearchHistory));
         updateURL({ search: inputSearch, genre: '', page: '1' });
       }
-    }, 1000);
+    }, 1500);
     return () => clearTimeout(timer);
   }, [inputSearch]);
 
@@ -137,8 +138,14 @@ export default function Home({ initialMovies }) {
   };
   const handleMore = () => updateURL({ page: String(Number(page) + 1) });
 
-  const handleSearch = (e) => {
-    setInputSearch(e.target.value);
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    // TODO: 2초 후 copied를 false로 되돌리기
+    // setTimeout 써서 isDark 토글했던 것처럼
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
   };
 
   return (
@@ -153,9 +160,13 @@ export default function Home({ initialMovies }) {
       <div className="flex justify-end">
         <button
           onClick={() => router.push('/liked')}
-          className="px-4 py-2 border rounded-xl text-sm hover:shadow transition dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-500"
+          className="px-4 py-2 border rounded-xl text-sm hover:shadow transition dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-500 mr-4"
         >
           ❤️ 찜 목록
+        </button>
+        <button onClick={handleShare} className={`px-6 py-2 rounded-full text-sm transition
+          border hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600`}>
+          {copied ? '✅ 복사됨' : '🔗 링크 복사'}
         </button>
       </div>
 
