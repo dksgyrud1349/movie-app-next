@@ -125,7 +125,7 @@ export default function Detail({ movie }) {
   return (
     <div className="max-w-[1400px] mx-auto px-4 py-6">
       <Head>
-        <title>🎬 {movie.title} - tv, 드라마 / 영화 검색 앱</title>
+        <title>🎬 {movie.title} - TV, 드라마 / 영화 검색 앱</title>
         <meta name="description" content={movie.overview?.slice(0, 100) || movie.title} />
         <meta property="og:title" content={movie.title} />
         <meta property="og:image" content={movie.poster_path 

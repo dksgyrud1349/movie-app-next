@@ -1,6 +1,6 @@
 # 📺 TV, 드라마 / 🎬 영화 검색 앱
 
-TMDB API를 활용한 영화 및 TV/드라마 검색 서비스입니다.
+TMDB API를 활용한 영화 및 TV / 드라마 검색 서비스입니다.
 
 ## 배포 링크
 🔗 [https://movie-app-next-hdkd.vercel.app](https://movie-app-next-hdkd.vercel.app)
@@ -14,7 +14,7 @@ TMDB API를 활용한 영화 및 TV/드라마 검색 서비스입니다.
 - Vercel (배포)
 
 ## 주요 기능
-- 🎬 영화 / 📺 드라마 구분 검색
+- 🎬 영화 / 📺 TV, 드라마 구분 검색
 - 장르별 필터링
 - 실시간 검색 (디바운스 적용)
 - 검색 기록 저장 및 삭제
