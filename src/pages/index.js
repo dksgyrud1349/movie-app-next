@@ -151,7 +151,7 @@ export default function Home({ initialMovies }) {
   return (
     <div className="max-w-[1400px] mx-auto px-4 py-6">
       <Head>
-        <title>🎬 드라마 / 영화 검색 앱</title>
+        <title>📺 TV, 드라마 / 🎬 영화 검색 앱</title>
         <meta name="description" content="TMDB API를 활용한 영화 및 드라마 검색 서비스" />
         <meta property="og:title" content="🎬 드라마 / 영화 검색 앱" />
         {/* <meta property="og:image" content="포스터 이미지 URL" /> */}
@@ -171,7 +171,7 @@ export default function Home({ initialMovies }) {
 
       {/* 타이틀 */}
       <h1 className="text-center text-2xl font-bold my-6">
-        🎬 드라마 / 영화 검색 앱
+        📺 TV, 드라마 / 🎬 영화 검색 앱
       </h1>
 
       {/* 🔍 검색 + 모드 버튼 */}
@@ -182,7 +182,7 @@ export default function Home({ initialMovies }) {
             hover:bg-blue-600 dark:border-gray-600
             ${mode === 'tv' ? 'bg-blue-700 text-white' : ''}`}
         >
-          📺 TV / 드라마
+          📺 TV, 드라마
         </button>
 
         <button
@@ -197,7 +197,7 @@ export default function Home({ initialMovies }) {
         <div className="relative w-full max-w-[420px] min-w-[220px]">
           <input
             type="text"
-            placeholder="TV / 드라마 / 영화 제목을 검색하세요"
+            placeholder="TV, 드라마 / 영화 제목을 검색하세요"
             value={inputSearch}
             onChange={(e) => setInputSearch(e.target.value)}
             onFocus={() => setIsFocused(true)}

@@ -116,7 +116,7 @@ export default function TVDetail({ tv }) {
   return (
     <div className="max-w-[1400px] mx-auto px-4 py-6">
       <Head>
-        <title>📺 {tv.name} - 드라마 / 영화 검색 앱</title>
+        <title>📺 {tv.name} - tv, 드라마 / 영화 검색 앱</title>
         <meta name="description" content={tv.overview?.slice(0, 100) || tv.name} />
         <meta property="og:title" content={tv.name} />
         <meta property="og:image" content={tv.poster_path 
