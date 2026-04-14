@@ -17,7 +17,7 @@ export default function App({ Component, pageProps }) {
     setIsDark(!isDark);
   };
 
-  if (!mounted) return null; // ← 클라이언트 준비될 때까지 렌더링 안 함
+  if (!mounted) return <Component {...pageProps} />;
 
   return (
     <div className={`${isDark ? 'dark' : ''} min-h-screen`}
