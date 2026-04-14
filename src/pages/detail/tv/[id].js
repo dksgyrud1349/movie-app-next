@@ -87,7 +87,10 @@ export default function TVDetail({ tv }) {
         <title>📺 {tv.name} - 드라마 / 영화 검색 앱</title>
         <meta name="description" content={tv.overview?.slice(0, 100) || tv.name} />
         <meta property="og:title" content={tv.name} />
-        <meta property="og:image" content={tv.poster_path ? `https://image.tmdb.org/t/p/w300${tv.poster_path}` : "/no-image.jpg"} />
+        <meta property="og:image" content={tv.poster_path 
+          ? `https://image.tmdb.org/t/p/w500${tv.poster_path}` 
+          : `https://movie-app-next-hdkd.vercel.app/no-image.jpg`} 
+        />
         <meta property="og:url" content={`https://movie-app-next-hdkd.vercel.app/detail/tv/${tv.id}`} />
       </Head>
       {/* 🔙 뒤로가기 */}
