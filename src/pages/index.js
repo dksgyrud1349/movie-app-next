@@ -112,8 +112,10 @@ export default function Home({ initialMovies }) {
       setLoading(false);  // 로딩 종료
 
       if (savedScrollY) {
-        window.scrollTo(0, Number(savedScrollY));
-        sessionStorage.removeItem('scrollY');
+        setTimeout(() => {
+          window.scrollTo(0, Number(savedScrollY));
+          sessionStorage.removeItem('scrollY');
+        }, 100); // ← 100ms 딜레이
       }
     };
 
@@ -136,7 +138,10 @@ export default function Home({ initialMovies }) {
     setInputSearch('');
     updateURL({ genre: genreId, search: '', page: '1' });
   };
-  const handleMore = () => updateURL({ page: String(Number(page) + 1) });
+  const handleMore = () => {
+    sessionStorage.setItem('scrollY', window.scrollY);
+    updateURL({ page: String(Number(page) + 1) });
+  }
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
