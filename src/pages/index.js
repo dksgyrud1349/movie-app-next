@@ -17,6 +17,7 @@ export default function Home({ initialMovies }) {
   const [isFocused, setIsFocused] = useState(false);
   const [history, setHistory] = useState([]);
   const [copied, setCopied] = useState(false);
+  const [showTop, setShowTop] = useState(false);
   const router = useRouter();
 
   const {
@@ -36,6 +37,17 @@ export default function Home({ initialMovies }) {
           }
         })();
     setHistory(localSearchHistory);
+
+    const handleScroll = () => {
+      // TODO: window.scrollY가 300 이상이면 setShowTop(true), 아니면 false
+      if(window.scrollY >= 300) {
+        setShowTop(true);
+      } else {
+        setShowTop(false)
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll); // cleanup
   }, []);
 
   useEffect(() => {
@@ -134,6 +146,13 @@ export default function Home({ initialMovies }) {
     setInputSearch('');
     updateURL({ mode: newMode, search: '', genre: '', page: '1' });
   };
+  const handleReset = () => {
+    // TODO: inputSearch 비우기
+    setInputSearch('');
+    // TODO: updateURL로 search, genre, page 초기화
+    updateURL({search: '', genre: '', page: 1})
+  };
+
   const handleGenre = (genreId) => {
     setInputSearch('');
     updateURL({ genre: genreId, search: '', page: '1' });
@@ -183,8 +202,7 @@ export default function Home({ initialMovies }) {
       <div className="flex flex-wrap justify-center items-center gap-2 mb-6">
         <button
           onClick={() => handleMode('tv')}
-          className={`px-4 py-2 rounded-full border text-sm transition
-            hover:bg-blue-600 dark:border-gray-600
+          className={`px-4 py-2 rounded-full border text-sm transition hover:bg-blue-600 dark:border-gray-600 hover:text-white
             ${mode === 'tv' ? 'bg-blue-700 text-white' : ''}`}
         >
           📺 TV, 드라마
@@ -192,8 +210,7 @@ export default function Home({ initialMovies }) {
 
         <button
           onClick={() => handleMode('movie')}
-          className={`px-4 py-2 rounded-full border text-sm transition
-            hover:bg-blue-600 dark:border-gray-600
+          className={`px-4 py-2 rounded-full border text-sm transition hover:bg-blue-600 dark:border-gray-600 hover:text-white
             ${mode === 'movie' ? 'bg-blue-700 text-white' : ''}`}
         >
           🎬 영화
@@ -207,9 +224,7 @@ export default function Home({ initialMovies }) {
             onChange={(e) => setInputSearch(e.target.value)}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setTimeout(() => setIsFocused(false), 150)}
-            className="px-4 py-3 text-sm rounded-full border w-full
-              focus:outline-none focus:ring-2 focus:ring-gray-300
-              dark:border-gray-600 placeholder-gray-400 dark:placeholder-gray-500"
+            className="px-4 py-3 text-sm rounded-full border w-full focus:outline-none focus:ring-2 focus:ring-gray-300 dark:border-gray-600 placeholder-gray-400 dark:placeholder-gray-500"
           />
           {/* 검색 기록 드롭다운 */}
           {isFocused && history.length > 0 && (
@@ -261,6 +276,15 @@ export default function Home({ initialMovies }) {
             </div>
           )}
         </div>
+        {/* 초기화 버튼 */}
+        {(search || genre) && (
+          <button
+            onClick={handleReset}
+            className="px-4 py-2 rounded-full border text-sm transition hover:bg-red-600 hover:text-white dark:border-gray-600"
+          >
+            ✕ 초기화
+          </button>
+        )}
       </div>
 
       {/* 🎭 장르 */}
@@ -268,10 +292,7 @@ export default function Home({ initialMovies }) {
         <button
           onClick={() => handleGenre('')}
           className={`px-4 py-1.5 rounded-full text-sm border transition
-            ${!genre || genre === 'null'
-              ? 'bg-blue-600 text-white'
-              : 'hover:bg-blue-700'}
-            dark:border-gray-600`}
+            ${!genre || genre === 'null' ? 'bg-blue-600 text-white' : 'hover:bg-blue-700'} dark:border-gray-600 hover:text-white`}
         >
           전체
         </button>
@@ -281,10 +302,7 @@ export default function Home({ initialMovies }) {
             key={g.id}
             onClick={() => handleGenre(g.id)}
             className={`px-4 py-1.5 rounded-full text-sm border transition
-              ${Number(genre) === g.id
-                ? 'bg-blue-600 text-white'
-                : 'hover:bg-blue-700'}
-              dark:border-gray-600`}
+              ${Number(genre) === g.id ? 'bg-blue-600 text-white' : 'hover:bg-blue-700'} dark:border-gray-600 hover:text-white`}
           >
             {g.name}
           </button>
@@ -324,6 +342,15 @@ export default function Home({ initialMovies }) {
             더보기
           </button>
         </div>
+      )}
+      {/* 스크롤 상단 이동 버튼 */}
+      {showTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-8 right-8 w-12 h-12 rounded-full border shadow-lg hover:bg-gray-100 dark:hover:bg-gray-500 dark:border-gray-600 transition flex items-center justify-center text-lg z-50"
+        >
+          ▲
+        </button>
       )}
     </div>
   );
